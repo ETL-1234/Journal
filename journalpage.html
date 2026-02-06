@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Journal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- React -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+
+<body class="bg-[#EFECE7] font-[Inter] overflow-hidden">
+<div id="root"></div>
+
+<script type="text/babel">
+
+/* =========================
+   APP SHELL
+========================= */
+
+function AppShell() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const startScreen = urlParams.get("screen") || "cover";
+  const [screen, setScreen] = React.useState(startScreen);
+
+  React.useEffect(() => {
+    let startX = 0;
+    const onTouchStart = e => startX = e.touches[0].clientX;
+    const onTouchEnd = e => {
+      const diff = e.changedTouches[0].clientX - startX;
+      if (diff < -50) {
+        if (screen === "cover") setScreen("welcome");
+        else if (screen === "welcome") setScreen("journal");
+      }
+    };
+    window.addEventListener("touchstart", onTouchStart);
+    window.addEventListener("touchend", onTouchEnd);
+    return () => {
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [screen]);
+
+  if (screen === "cover") return <CoverPage onNext={() => setScreen("welcome")} onSkip={() => setScreen("journal")} />;
+  if (screen === "welcome") return <WelcomePage onNext={() => setScreen("journal")} />;
+  return <JournalApp />;
+}
+
+/* =========================
+   COVER PAGE
+========================= */
+
+function CoverPage({ onNext, onSkip }) {
+  return (
+    <div className="min-h-screen bg-[#EFECE7] p-4 flex items-center justify-center">
+      <div className="max-w-xl w-full relative">
+
+        <img
+          src="https://hkdgqdmxhtnxtcuqfovq.supabase.co/storage/v1/object/public/Other/My%20journal.png"
+          alt="Journal cover"
+          className="w-full rounded-2xl shadow-lg"
+        />
+
+        <button
+          onClick={onSkip}
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm underline text-black"
+        >
+          Skip welcome
+        </button>
+
+        <button
+          onClick={onNext}
+          className="absolute bottom-4 right-4 text-3xl text-black"
+        >
+          →
+        </button>
+
+      </div>
+    </div>
+  );
+}
+
+/* =========================
+   WELCOME PAGE
+========================= */
+
+function WelcomePage({ onNext }) {
+  return (
+    <div className="min-h-screen bg-[#EFECE7] p-4 flex items-center justify-center">
+      <div className="bg-white rounded-2xl shadow-lg p-6 max-w-xl w-full relative text-sm leading-relaxed">
+
+        <h1 className="text-2xl font-semibold mb-4">
+          Welcome to Your Journal!
+        </h1>
+
+        <p className="mb-6">
+          This journal is yours, for you to journal however you like.
+        </p>
+
+        <p className="font-semibold text-lg mb-3">Suggestions for journaling:</p>
+        <p className="italic mb-1">Try to make it a habit to journal after a practice.</p>
+        <p className="italic mb-1">Use the journal prompts from the journal section for inspiration.</p>
+        <p className="italic mb-4">Find a time of day, morning or evening, to journal consistently.</p>
+
+        <p className="font-semibold text-lg mb-3">Practical information:</p>
+        <p>You can journal as often as you like.</p>
+        <p>All journal entries are date and time-stamped.</p>
+        <p className="mb-3">The journal works offline as well.</p>
+
+        <p className="font-semibold">Tracking:</p>
+        <p>On the daily journal page, you can skip back and forth between entries.</p>
+        <p>Open calendar view to see how often you journal (highlighted in blue).</p>
+        <p className="mb-3">Tap blue entries in the calendar to access the journal entries of that day.</p>
+
+        <p className="font-semibold">Saved:</p>
+        <p>Everything you write is auto-saved.</p>
+        <p>Journal entries are saved for 365 days.</p>
+        <p className="mb-3">You can download all entries from the calendar overview in a txt file.</p>
+
+        <p className="font-semibold">Security:</p>
+        <p>All data is stored locally on your device and is private.</p>
+        <p>Journal entries are not shared with anyone.</p>
+
+        <p className="font-semibold italic mt-4">Please note:</p>
+        <p className="italic">If the app is deleted from your device, your data is lost unless downloaded.</p>
+        <p className="italic">Anyone with physical access to your device could potentially open the app and read your entries.</p>
+
+        <button
+          onClick={onNext}
+          className="absolute bottom-4 right-4 text-3xl text-black"
+        >
+          →
+        </button>
+
+      </div>
+    </div>
+  );
+}
+
+/* =========================
+   JOURNAL APP (READY)
+========================= */
+
+const STORAGE_KEY = "journal_entries";
+
+function JournalApp() {
+  const today = new Date();
+  const todayKey = today.toISOString().split("T")[0];
+
+  const [entries, setEntries] = React.useState({});
+  const [currentDate, setCurrentDate] = React.useState(todayKey);
+  const [entryIndex, setEntryIndex] = React.useState(null); // CLEAN START
+  const [text, setText] = React.useState("");
+  const [lined, setLined] = React.useState(false);
+  const [showCalendar, setShowCalendar] = React.useState(false);
+  const [calendarMonth, setCalendarMonth] = React.useState(new Date());
+
+  // Load storage ONLY (no auto-load entry)
+  React.useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    setEntries(stored);
+    setText("");
+    setEntryIndex(null);
+  }, []);
+
+  // Auto-save
+  React.useEffect(() => {
+    if (!text) return;
+
+    setEntries(prev => {
+      const dayEntries = prev[currentDate] || [];
+      const updated = [...dayEntries];
+
+      if (entryIndex === null) {
+        updated.push({
+          text,
+          timestamp: new Date().toString()
+        });
+        setEntryIndex(updated.length - 1);
+      } else {
+        updated[entryIndex].text = text;
+      }
+
+      const next = { ...prev, [currentDate]: updated };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  }, [text]);
+
+  const currentTimestamp =
+    entryIndex !== null
+      ? entries[currentDate]?.[entryIndex]?.timestamp
+      : null;
+
+  const goEarlierEntry = () => {
+    if (entryIndex > 0) {
+      setEntryIndex(i => i - 1);
+      setText(entries[currentDate][entryIndex - 1].text);
+    }
+  };
+
+  const goLaterEntry = () => {
+    if (entryIndex < (entries[currentDate]?.length || 0) - 1) {
+      setEntryIndex(i => i + 1);
+      setText(entries[currentDate][entryIndex + 1].text);
+    }
+  };
+
+  // Calendar helpers
+  const startOfMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1);
+  const endOfMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 0);
+  const startDay = startOfMonth.getDay();
+  const daysInMonth = endOfMonth.getDate();
+
+  const days = [];
+  for (let i = 0; i < startDay; i++) days.push(null);
+  for (let d = 1; d <= daysInMonth; d++) days.push(d);
+
+  const downloadEntries = () => {
+    let content = "";
+    Object.entries(entries).forEach(([date, dayEntries]) => {
+      dayEntries.forEach(e => {
+        content += `${date} – ${new Date(e.timestamp).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit"
+        })}\n${e.text}\n\n`;
+      });
+    });
+
+    const blob = new Blob([content], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "journal_entries.txt";
+    link.click();
+  };
+
+  return (
+    <div className="min-h-screen p-4">
+      <div className="max-w-xl mx-auto">
+
+        <h1 className="text-2xl font-semibold mb-1">My Journal</h1>
+        <p className="text-sm text-gray-500 mb-3">A quiet space to meet yourself</p>
+
+        <div className="flex justify-between items-center mb-2">
+          <p className="text-xs text-gray-400">
+            {currentDate}
+            {currentTimestamp && " · " +
+              new Date(currentTimestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+          </p>
+
+          <button
+            onClick={() => setLined(!lined)}
+            className="text-sm px-3 py-1 bg-white shadow rounded-lg"
+          >
+            {lined ? "Blank" : "Lined"}
+          </button>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-lg p-4">
+          <textarea
+            value={text}
+            onChange={e => setText(e.target.value)}
+            placeholder="Start writing…"
+            className={`w-full h-[55vh] resize-none focus:outline-none ${
+              lined
+                ? "bg-[linear-gradient(transparent_95%,rgba(0,0,0,0.05)_96%)] bg-[length:100%_2rem]"
+                : ""
+            }`}
+          />
+        </div>
+
+        <div className="flex justify-between text-sm mt-3">
+          <button onClick={goEarlierEntry}>← Earlier entry</button>
+          <button onClick={goLaterEntry}>Later entry →</button>
+        </div>
+
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={() => setShowCalendar(true)}
+            className="px-4 py-2 bg-white shadow rounded-lg text-sm"
+          >
+            Calendar
+          </button>
+        </div>
+      </div>
+
+      {/* Calendar Overlay */}
+      {showCalendar && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+          <div className="bg-white rounded-2xl p-4 w-[90%] max-w-md">
+            <div className="flex justify-between items-center mb-3">
+              <button onClick={() =>
+                setCalendarMonth(m => new Date(m.getFullYear(), m.getMonth() - 1, 1))
+              }>‹</button>
+              <h2 className="font-semibold">
+                {calendarMonth.toLocaleString("default", { month: "long", year: "numeric" })}
+              </h2>
+              <button onClick={() =>
+                setCalendarMonth(m => new Date(m.getFullYear(), m.getMonth() + 1, 1))
+              }>›</button>
+            </div>
+
+            <div className="grid grid-cols-7 gap-2 text-center text-sm">
+              {["S","M","T","W","T","F","S"].map(d => <div key={d}>{d}</div>)}
+              {days.map((d, i) => {
+                if (!d) return <div key={i} />;
+                const dateKey = `${calendarMonth.getFullYear()}-${String(calendarMonth.getMonth()+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+                return (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      setCurrentDate(dateKey);
+                      const dayEntries = entries[dateKey] || [];
+                      const idx = dayEntries.length ? dayEntries.length - 1 : null;
+                      setEntryIndex(idx);
+                      setText(idx !== null ? dayEntries[idx].text : "");
+                      setShowCalendar(false);
+                    }}
+                    className="relative p-2 rounded-lg border"
+                  >
+                    {d}
+                    {entries[dateKey] && (
+                      <span
+                        className="absolute inset-0 rounded-lg"
+                        style={{ backgroundColor: "rgba(122,156,183,0.5)" }}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex justify-between mt-4 text-sm">
+              <button onClick={() => setShowCalendar(false)} className="underline">
+                Close
+              </button>
+              <button onClick={downloadEntries} className="underline">
+                Download
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<AppShell />);
+</script>
+</body>
+</html>
