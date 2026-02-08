@@ -203,14 +203,22 @@
   let calendarMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
   function updateDisplay() {
-    const dayEntries = entries[currentDate] || [];
-    entryIndex = entryIndex !== null ? entryIndex : (dayEntries.length ? dayEntries.length - 1 : null);
-    textarea.value = entryIndex !== null ? dayEntries[entryIndex].text : '';
-    const ts = entryIndex !== null ? new Date(dayEntries[entryIndex].timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
+  const dayEntries = entries[currentDate] || [];
+  // Only use entryIndex if it's not null
+  if (entryIndex !== null) {
+    textarea.value = dayEntries[entryIndex]?.text || '';
+    const ts = dayEntries[entryIndex]?.timestamp ? new Date(dayEntries[entryIndex].timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
     currentDateEl.textContent = currentDate + (ts ? ' · ' + ts : '');
-    toggleLinedBtn.textContent = lined ? 'Blank' : 'Lined';
-    textarea.style.background = lined ? 'repeating-linear-gradient(transparent, transparent 28px, rgba(0,0,0,0.05) 29px)' : 'none';
+  } else {
+    // New entry
+    textarea.value = '';
+    currentDateEl.textContent = currentDate;
   }
+
+  toggleLinedBtn.textContent = lined ? 'Blank' : 'Lined';
+  textarea.style.background = lined ? 'repeating-linear-gradient(transparent, transparent 28px, rgba(0,0,0,0.05) 29px)' : 'none';
+}
+
 
   function saveEntry() {
     if (!textarea.value) return;
