@@ -60,9 +60,9 @@ function AppShell() {
 
 function CoverPage({ onNext, onSkip }) {
   return (
-   <div className="h-screen bg-[#EFECE7] p-4 flex justify-center">
-      <div className="max-w-xl w-full relative mt-8">
-
+   <div className="h-full bg-[#EFECE7] p-4 flex justify-center items-start">
+     // /* <div className="max-w-xl w-full relative mt-8"> - MAYBE REMOVE */
+       
         <img
           src="https://hkdgqdmxhtnxtcuqfovq.supabase.co/storage/v1/object/public/Other/My%20journal.png"
           alt="Journal cover"
@@ -94,7 +94,7 @@ function CoverPage({ onNext, onSkip }) {
 
 function WelcomePage({ onNext }) {
   return (
-  <div className="h-screen bg-[#EFECE7] p-4 flex justify-center overflow-y-auto">
+  <div className="h-full bg-[#EFECE7] p-4 flex justify-center items-start overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-lg p-6 max-w-xl w-full relative text-sm leading-relaxed mt-6">
 
         <h1 className="text-2xl font-semibold mb-4">
