@@ -46,6 +46,16 @@
       position: relative;
     }
 
+    textarea {
+      font-family: 'Inter', sans-serif;
+    }
+
+    #calendarOverlay button {
+      border: none;
+      padding: 6px 0;
+      border-radius: 8px;
+      cursor: pointer;
+    }
   </style>
 </head>
 
@@ -98,22 +108,58 @@
     </div>
   </div>
 
-  <!-- JOURNAL PAGE (UNCHANGED) -->
+  <!-- JOURNAL PAGE -->
   <div id="journalPage" class="page">
-    <!-- ORIGINAL REACT JOURNAL APP -->
-    <div id="journalRoot"></div>
+    <div class="card" id="journalCard">
+      <h1 style="font-size:22px; margin-bottom:8px;">My Journal</h1>
+      <p style="font-size:14px; color:#555; margin-bottom:16px;">A quiet space to meet yourself</p>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <p id="currentDate" style="font-size:12px; color:#888;"></p>
+        <button id="toggleLined" style="font-size:12px; padding:4px 8px; border-radius:8px; border:none; box-shadow:0 4px 10px rgba(0,0,0,0.1); background:#fff; cursor:pointer;">Lined</button>
+      </div>
+
+      <div style="background:#fff; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.12); padding:16px; flex:1; display:flex; flex-direction:column;">
+        <textarea id="journalTextarea" placeholder="Start writing…" style="flex:1; width:100%; resize:none; border:none; outline:none; background:none; font-size:14px; line-height:1.6;"></textarea>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:12px;">
+        <button id="earlierEntry" style="background:none; border:none; cursor:pointer;">← Earlier entry</button>
+        <button id="laterEntry" style="background:none; border:none; cursor:pointer;">Later entry →</button>
+      </div>
+
+      <div style="display:flex; justify-content:center; margin-top:16px;">
+        <button id="openCalendar" style="padding:8px 16px; border-radius:8px; border:none; box-shadow:0 4px 10px rgba(0,0,0,0.1); background:#fff; cursor:pointer;">Calendar</button>
+      </div>
+    </div>
+
+    <!-- Calendar Overlay -->
+    <div id="calendarOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); justify-content:center; align-items:center;">
+      <div style="background:#fff; border-radius:16px; padding:16px; width:90%; max-width:360px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <button id="prevMonth">‹</button>
+          <h2 id="calendarTitle" style="font-weight:bold;"></h2>
+          <button id="nextMonth">›</button>
+        </div>
+        <div id="calendarGrid" style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px; text-align:center; font-size:12px;"></div>
+        <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:12px;">
+          <button id="closeCalendar" style="text-decoration:underline;">Close</button>
+          <button id="downloadEntries" style="text-decoration:underline;">Download</button>
+        </div>
+      </div>
+    </div>
   </div>
 
 </div>
 
-<script type="text/javascript">
-  // Page switching like Sudoku
+<script>
+  // PAGE SWITCHING
   function showPage(id) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(id).classList.add('active');
   }
 
-  // Swipe support
+  // SWIPE SUPPORT
   let startX = 0;
   document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
   document.addEventListener('touchend', e => {
@@ -124,235 +170,91 @@
       else if (current === 'welcomePage') showPage('journalPage');
     }
   });
-</script>
 
-<!-- LOAD ORIGINAL REACT JOURNAL APP -->
-<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script type="text/babel">
-// Paste your entire JournalApp code here
-  /* =========================
-   JOURNAL APP (READY)
-========================= */
+  // JOURNAL LOGIC
+  const STORAGE_KEY = 'journal_entries';
+  let entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  let today = new Date();
+  let currentDate = today.toISOString().split('T')[0];
+  let entryIndex = null;
+  let lined = false;
 
-const STORAGE_KEY = "journal_entries";
+  const textarea = document.getElementById('journalTextarea');
+  const currentDateEl = document.getElementById('currentDate');
+  const toggleLinedBtn = document.getElementById('toggleLined');
+  const earlierBtn = document.getElementById('earlierEntry');
+  const laterBtn = document.getElementById('laterEntry');
+  const calendarOverlay = document.getElementById('calendarOverlay');
+  const openCalendarBtn = document.getElementById('openCalendar');
+  const closeCalendarBtn = document.getElementById('closeCalendar');
+  const downloadBtn = document.getElementById('downloadEntries');
+  const calendarGrid = document.getElementById('calendarGrid');
+  const calendarTitle = document.getElementById('calendarTitle');
+  const prevMonthBtn = document.getElementById('prevMonth');
+  const nextMonthBtn = document.getElementById('nextMonth');
+  let calendarMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-function JournalApp() {
-  const today = new Date();
-  const todayKey = today.toISOString().split("T")[0];
+  function updateDisplay() {
+    const dayEntries = entries[currentDate] || [];
+    entryIndex = entryIndex !== null ? entryIndex : (dayEntries.length ? dayEntries.length - 1 : null);
+    textarea.value = entryIndex !== null ? dayEntries[entryIndex].text : '';
+    const ts = entryIndex !== null ? new Date(dayEntries[entryIndex].timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
+    currentDateEl.textContent = currentDate + (ts ? ' · ' + ts : '');
+    toggleLinedBtn.textContent = lined ? 'Blank' : 'Lined';
+    textarea.style.background = lined ? 'repeating-linear-gradient(transparent, transparent 28px, rgba(0,0,0,0.05) 29px)' : 'none';
+  }
 
-  const [entries, setEntries] = React.useState({});
-  const [currentDate, setCurrentDate] = React.useState(todayKey);
-  const [entryIndex, setEntryIndex] = React.useState(null); // CLEAN START
-  const [text, setText] = React.useState("");
-  const [lined, setLined] = React.useState(false);
-  const [showCalendar, setShowCalendar] = React.useState(false);
-  const [calendarMonth, setCalendarMonth] = React.useState(new Date());
-
-  // Load storage ONLY (no auto-load entry)
-  React.useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-    setEntries(stored);
-    setText("");
-    setEntryIndex(null);
-  }, []);
-
-  // Auto-save
-  React.useEffect(() => {
-    if (!text) return;
-
-    setEntries(prev => {
-      const dayEntries = prev[currentDate] || [];
-      const updated = [...dayEntries];
-
-      if (entryIndex === null) {
-        updated.push({
-          text,
-          timestamp: new Date().toString()
-        });
-        setEntryIndex(updated.length - 1);
-      } else {
-        updated[entryIndex].text = text;
-      }
-
-      const next = { ...prev, [currentDate]: updated };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      return next;
-    });
-  }, [text]);
-
-  const currentTimestamp =
-    entryIndex !== null
-      ? entries[currentDate]?.[entryIndex]?.timestamp
-      : null;
-
-  const goEarlierEntry = () => {
-    if (entryIndex > 0) {
-      setEntryIndex(i => i - 1);
-      setText(entries[currentDate][entryIndex - 1].text);
+  function saveEntry() {
+    if (!textarea.value) return;
+    if (!entries[currentDate]) entries[currentDate] = [];
+    if (entryIndex === null) {
+      entries[currentDate].push({ text: textarea.value, timestamp: new Date().toString() });
+      entryIndex = entries[currentDate].length - 1;
+    } else {
+      entries[currentDate][entryIndex].text = textarea.value;
     }
-  };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  }
 
-  const goLaterEntry = () => {
-    if (entryIndex < (entries[currentDate]?.length || 0) - 1) {
-      setEntryIndex(i => i + 1);
-      setText(entries[currentDate][entryIndex + 1].text);
+  textarea.addEventListener('input', saveEntry);
+
+  toggleLinedBtn.addEventListener('click', () => { lined = !lined; updateDisplay(); });
+  earlierBtn.addEventListener('click', () => { if(entryIndex>0){entryIndex--; updateDisplay();}});
+  laterBtn.addEventListener('click', () => { if(entryIndex<(entries[currentDate]?.length||0)-1){entryIndex++; updateDisplay();}});
+
+  // CALENDAR
+  function generateCalendar() {
+    const year = calendarMonth.getFullYear();
+    const month = calendarMonth.getMonth();
+    calendarTitle.textContent = calendarMonth.toLocaleString('default', {month:'long', year:'numeric'});
+    calendarGrid.innerHTML = '';
+    const startDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month+1, 0).getDate();
+
+    ['S','M','T','W','T','F','S'].forEach(d => { const div=document.createElement('div'); div.textContent=d; calendarGrid.appendChild(div);});
+    for(let i=0;i<startDay;i++) calendarGrid.appendChild(document.createElement('div'));
+
+    for(let d=1;d<=daysInMonth;d++){
+      const btn=document.createElement('button');
+      btn.textContent=d;
+      const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      if(entries[dateKey]) btn.style.background='rgba(122,156,183,0.5)';
+      btn.addEventListener('click', ()=>{currentDate=dateKey; entryIndex=(entries[currentDate]?.length||0)-1; updateDisplay(); calendarOverlay.style.display='none';});
+      calendarGrid.appendChild(btn);
     }
-  };
+  }
 
-  // Calendar helpers
-  const startOfMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1);
-  const endOfMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 0);
-  const startDay = startOfMonth.getDay();
-  const daysInMonth = endOfMonth.getDate();
+  openCalendarBtn.addEventListener('click', ()=>{calendarOverlay.style.display='flex'; generateCalendar();});
+  closeCalendarBtn.addEventListener('click', ()=>calendarOverlay.style.display='none');
+  prevMonthBtn.addEventListener('click', ()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1); generateCalendar();});
+  nextMonthBtn.addEventListener('click', ()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1); generateCalendar();});
+  downloadBtn.addEventListener('click', ()=>{
+    let content=''; Object.entries(entries).forEach(([date, dayEntries])=>{ dayEntries.forEach(e=>{content+=`${date} – ${new Date(e.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}\n${e.text}\n\n`;});});
+    const blob = new Blob([content], {type:'text/plain'});
+    const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='journal_entries.txt'; link.click();
+  });
 
-  const days = [];
-  for (let i = 0; i < startDay; i++) days.push(null);
-  for (let d = 1; d <= daysInMonth; d++) days.push(d);
-
-  const downloadEntries = () => {
-    let content = "";
-    Object.entries(entries).forEach(([date, dayEntries]) => {
-      dayEntries.forEach(e => {
-        content += `${date} – ${new Date(e.timestamp).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit"
-        })}\n${e.text}\n\n`;
-      });
-    });
-
-    const blob = new Blob([content], { type: "text/plain" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "journal_entries.txt";
-    link.click();
-  };
-
-  return (
-    <div className="min-h-screen p-4 flex flex-col">
-      <div className="max-w-xl mx-auto flex flex-col flex-1">
-
-        <h1 className="text-2xl font-semibold mb-1">My Journal</h1>
-        <p className="text-sm text-gray-500 mb-3">A quiet space to meet yourself</p>
-
-        <div className="flex justify-between items-center mb-2">
-          <p className="text-xs text-gray-400">
-            {currentDate}
-            {currentTimestamp && " · " +
-              new Date(currentTimestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-          </p>
-
-          <button
-            onClick={() => setLined(!lined)}
-            className="text-sm px-3 py-1 bg-white shadow rounded-lg"
-          >
-            {lined ? "Blank" : "Lined"}
-          </button>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-lg p-4 flex flex-col flex-1">
-          <textarea
-            value={text}
-            onChange={e => setText(e.target.value)}
-            placeholder="Start writing…"
-            className={`w-full flex-1 resize-none focus:outline-none ${
-              lined
-                ? "bg-[linear-gradient(transparent_95%,rgba(0,0,0,0.05)_96%)] bg-[length:100%_2rem]"
-                : ""
-            }`}
-          />
-        </div>
-
-        <div className="flex justify-between text-sm mt-3">
-          <button onClick={goEarlierEntry}>← Earlier entry</button>
-          <button onClick={goLaterEntry}>Later entry →</button>
-        </div>
-
-        <div className="flex justify-center mt-4">
-          <button
-            onClick={() => setShowCalendar(true)}
-            className="px-4 py-2 bg-white shadow rounded-lg text-sm"
-          >
-            Calendar
-          </button>
-        </div>
-      </div>
-
-      {/* Calendar Overlay */}
-      {showCalendar && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white rounded-2xl p-4 w-[90%] max-w-md">
-            <div className="flex justify-between items-center mb-3">
-              <button onClick={() =>
-                setCalendarMonth(m => new Date(m.getFullYear(), m.getMonth() - 1, 1))
-              }>‹</button>
-              <h2 className="font-semibold">
-                {calendarMonth.toLocaleString("default", { month: "long", year: "numeric" })}
-              </h2>
-              <button onClick={() =>
-                setCalendarMonth(m => new Date(m.getFullYear(), m.getMonth() + 1, 1))
-              }>›</button>
-            </div>
-
-            <div className="grid grid-cols-7 gap-2 text-center text-sm">
-              {["S","M","T","W","T","F","S"].map(d => <div key={d}>{d}</div>)}
-              {days.map((d, i) => {
-                if (!d) return <div key={i} />;
-                const dateKey = `${calendarMonth.getFullYear()}-${String(calendarMonth.getMonth()+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-                return (
-                  <button
-                    key={i}
-                    onClick={() => {
-                      setCurrentDate(dateKey);
-                      const dayEntries = entries[dateKey] || [];
-                      const idx = dayEntries.length ? dayEntries.length - 1 : null;
-                      setEntryIndex(idx);
-                      setText(idx !== null ? dayEntries[idx].text : "");
-                      setShowCalendar(false);
-                    }}
-                    className="relative p-2 rounded-lg border"
-                  >
-                    {d}
-                    {entries[dateKey] && (
-                      <span
-                        className="absolute inset-0 rounded-lg"
-                        style={{ backgroundColor: "rgba(122,156,183,0.5)" }}
-                      />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="flex justify-between mt-4 text-sm">
-              <button onClick={() => setShowCalendar(false)} className="underline">
-                Close
-              </button>
-              <button onClick={downloadEntries} className="underline">
-                Download
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function MobileFrame({ children }) {
-  return (
-    <div className="min-h-screen flex justify-center bg-[#EFECE7]">
-      <div className="w-full max-w-[430px] min-h-screen bg-[#EFECE7] overflow-hidden">
-        {children}
-      </div>
-    </div>
-  );
-}
-// <--- EVERYTHING inside your original JournalApp function stays intact
-// It renders into "journalRoot" div
-ReactDOM.createRoot(document.getElementById('journalRoot')).render(<JournalApp />);
+  updateDisplay();
 </script>
 
 </body>
