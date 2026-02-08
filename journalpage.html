@@ -154,10 +154,18 @@
 
 <script>
   // PAGE SWITCHING
-  function showPage(id) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+ function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+
+  if(id === 'journalPage') {
+    entryIndex = null;           // always start a new entry
+    currentDate = new Date().toISOString().split('T')[0]; // reset date to today
+    textarea.value = '';          // clear textarea
+    updateDisplay();
   }
+}
+
 
   // SWIPE SUPPORT
   let startX = 0;
