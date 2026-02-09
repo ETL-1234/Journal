@@ -213,6 +213,8 @@
   const prevMonthBtn = document.getElementById('prevMonth');
   const nextMonthBtn = document.getElementById('nextMonth');
   let calendarMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const newEntryBtn = document.getElementById('newEntryBtn');
+
 
   function updateDisplay() {
   const dayEntries = entries[currentDate] || [];
