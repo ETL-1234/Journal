@@ -115,9 +115,21 @@
       <p style="font-size:14px; color:#555; margin-bottom:8px;">A quiet space to meet yourself</p>
 
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <p id="currentDate" style="font-size:12px; color:#888;"></p>
-        <button id="toggleLined" style="font-size:16px; padding:8px 16px; border-radius:8px; border:none; box-shadow:0 4px 10px rgba(0,0,0,0.1); background:#fff; cursor:pointer;">Lined</button>
-      </div>
+  <p id="currentDate" style="font-size:12px; color:#888;"></p>
+
+  <div style="display:flex; gap:8px;">
+    <button id="newEntryBtn"
+      style="font-size:16px; padding:8px 16px; border-radius:8px; border:none; box-shadow:0 4px 10px rgba(0,0,0,0.1); background:#fff; cursor:pointer;">
+      New Page
+    </button>
+
+    <button id="toggleLined"
+      style="font-size:16px; padding:8px 16px; border-radius:8px; border:none; box-shadow:0 4px 10px rgba(0,0,0,0.1); background:#fff; cursor:pointer;">
+      Lined
+    </button>
+  </div>
+</div>
+
 
       <div style="background:#fff; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.12); padding:16px; display:flex; flex-direction:column;">
         <textarea id="journalTextarea" placeholder="Start writing…" style="width:100%; min-height:60vh; resize:none; border:none; outline:none; background:#fff; border-radius:16px; padding:16px; font-size:14px; line-height:1.6;"></textarea>
