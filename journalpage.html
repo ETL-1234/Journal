@@ -278,6 +278,14 @@
   earlierBtn.addEventListener('click', () => { if(entryIndex>0){entryIndex--; updateDisplay();}});
   laterBtn.addEventListener('click', () => { if(entryIndex<(entries[currentDate]?.length||0)-1){entryIndex++; updateDisplay();}});
 
+  newEntryBtn.addEventListener('click', () => {
+  entryIndex = null;                         // detach from old entries
+  currentDate = new Date().toISOString().split('T')[0]; // today
+  textarea.value = '';                       // blank page
+  updateDisplay();
+  textarea.focus();
+});
+
   // CALENDAR
   function generateCalendar() {
     const year = calendarMonth.getFullYear();
