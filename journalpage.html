@@ -136,18 +136,22 @@
 </div>
 
 <script>
-  // PAGE SWITCHING
- function showPage(id) {
+  // SHOW PAGE
+function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const page = document.getElementById(id);
+  if (!page) return;
 
-  if(id === 'journalPage') {
-    entryIndex = null;           // always start a new entry
-    currentDate = new Date().toISOString().split('T')[0]; // reset date to today
-    textarea.value = '';          // clear textarea
+  page.classList.add('active');
+
+  if (id === 'journalPage') {
+    entryIndex = null;
+    currentDate = new Date().toISOString().split('T')[0];
+    textarea.value = '';
     updateDisplay();
   }
 }
+
 
 
   // SWIPE SUPPORT
