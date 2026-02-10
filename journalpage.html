@@ -152,20 +152,6 @@ function showPage(id) {
   }
 }
 
-
-
-  // SWIPE SUPPORT
-  let startX = 0;
-  document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
-  document.addEventListener('touchend', e => {
-    const diff = e.changedTouches[0].clientX - startX;
-    const current = document.querySelector('.page.active').id;
-    if (diff < -50) {
-      if (current === 'coverPage') showPage('welcomePage');
-      else if (current === 'welcomePage') showPage('journalPage');
-    }
-  });
-
   // JOURNAL LOGIC
   const STORAGE_KEY = 'journal_entries';
   let entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
