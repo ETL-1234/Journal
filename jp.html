@@ -411,6 +411,30 @@ calendarMonth.setMonth(calendarMonth.getMonth()+1);
 generateCalendar();
 };
 
+  /* SWIPE */
+  let startX = 0;
+
+calendarGrid.addEventListener('touchstart', e=>{
+startX = e.touches[0].clientX;
+});
+
+calendarGrid.addEventListener('touchend', e=>{
+
+let endX = e.changedTouches[0].clientX;
+let diff = endX - startX;
+
+if(diff > 70){
+calendarMonth.setMonth(calendarMonth.getMonth()-1);
+generateCalendar();
+}
+
+if(diff < -70){
+calendarMonth.setMonth(calendarMonth.getMonth()+1);
+generateCalendar();
+}
+
+});
+
 /* INIT */
 
 generateCalendar();
