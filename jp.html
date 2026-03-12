@@ -270,6 +270,12 @@ let today=new Date();
 let currentDate=today.toISOString().split('T')[0];
 
 const textarea=document.getElementById('journalTextarea');
+
+  textarea.addEventListener('input',()=>{
+  entries[currentDate] = textarea.value;
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(entries));
+});
+  
 const currentDateEl=document.getElementById('currentDate');
 
 /* CYCLE DAY */
