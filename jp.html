@@ -490,12 +490,12 @@ calendarGrid.appendChild(btn);
             return;
         }
 
-        const phaseName = getPhase(dayNum) || '-';
+        
         const dayNum = getCycleDay(dateKey) || '-';
+        const phaseName = getPhase(dayNum) || '-';
         const text = entries[dateKey];
 
-        lines.push(`${dateKey} | Phase: ${phaseName} | Cycle Day: ${dayNum}\n${text}\n`);
-    });
+       lines.push(${dateKey} | Phase: ${phaseName} | Cycle Day: ${dayNum}\n${text}\n); }); 
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
 
