@@ -73,6 +73,10 @@ background:#000;
 border-radius:50%;
 }
 
+  .selectedDay{
+outline:2px solid #000;
+}
+
 /* PHASE COLORS */
 
 .menstrual{background:#f7d6d6;}
@@ -360,6 +364,10 @@ if(entries[dateKey]){
 let dot=document.createElement('div');
 dot.className='entryDot';
 btn.appendChild(dot);
+}
+
+  if(dateKey===currentDate){
+btn.classList.add('selectedDay');
 }
 
 /* TAP = JOURNAL */
