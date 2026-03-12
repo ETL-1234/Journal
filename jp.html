@@ -142,73 +142,49 @@ select{
 <body>
 
 <div class="app">
+  <div class="card">
 
-<div class="card">
+    <h1 style="font-size:22px;margin-bottom:6px;">Period Tracker</h1>
 
-<h1 style="font-size:22px;margin-bottom:6px;">Period Tracker</h1>
-
-<div style="display:flex;gap:12px;margin-bottom:16px;">
-
-<div>
-<label style="font-size:14px;">Cycle length</label><br>
-<select id="cycleLength"></select>
-</div>
-
-<div>
-<label style="font-size:14px;">Period length</label><br>
-<select id="periodLength"></select>
-</div>
-  
-</div>
-
-  <p id="comment" style="font-size:16px;color:#555;margin-bottom:12px;"></p>
-  <p id="confirmationMsg" style="font-size:14px;color:#2e7d32;margin-bottom:10px;height:18px;"></p>
-
-<div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-<button id="prevMonth">‹</button>
-<h3 id="calendarTitle"></h3>
-<button id="nextMonth">›</button>
-</div>
-
-<div id="calendarGrid"></div>
-
-  <!-- Buttons for download and today -->
-    <div style="position: relative; margin-top:16px;">
-      <button id="downloadEntries" style="
-          position: absolute;
-          right: 16px;
-          bottom: 48px;
-          font-size: 14px;
-          background: none;
-          border: none;
-          cursor: pointer;
-          color: black;
-          font-style: italic;
-      ">Download</button>
-
-      <button id="returnToday" style="
-          position: absolute;
-          right: 16px;
-          bottom: 16px;
-          font-size: 14px;
-          background: none;
-          border: none;
-          cursor: pointer;
-          color: black;
-          font-style: italic;
-      ">Today</button>
+    <!-- Cycle & Period Length Selectors -->
+    <div class="selectors">
+      <div>
+        <label style="font-size:14px;">Cycle length</label><br>
+        <select id="cycleLength"></select>
+      </div>
+      <div>
+        <label style="font-size:14px;">Period length</label><br>
+        <select id="periodLength"></select>
+      </div>
     </div>
+
+    <!-- Guidance & Confirmation Messages -->
+    <p id="comment" style="font-size:16px;color:#555;margin-bottom:12px;"></p>
+    <p id="confirmationMsg" style="font-size:14px;color:#2e7d32;margin-bottom:10px;height:18px;"></p>
+
+    <!-- Month Navigation -->
+    <div class="calendar-header">
+      <button id="prevMonth">‹</button>
+      <h3 id="calendarTitle"></h3>
+      <button id="nextMonth">›</button>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div id="calendarGrid"></div>
+
+    <!-- Buttons for Download & Today -->
+    <div class="buttons">
+      <button id="downloadEntries" style="font-size:14px;background:none;border:none;cursor:pointer;color:black;font-style:italic;">Download</button>
+      <button id="returnToday" style="font-size:14px;background:none;border:none;cursor:pointer;color:black;font-style:italic;">Today</button>
+    </div>
+
+    <hr style="margin:20px 0;">
+
+    <!-- Current Date & Journal -->
+    <p id="currentDate" style="font-size:12px;color:#888;"></p>
+    <textarea id="journalTextarea" placeholder="Daily reflection…"></textarea>
+
   </div>
-</div>
-
-<hr style="margin:20px 0;">
-
-<p id="currentDate" style="font-size:12px;color:#888;"></p>
-
-<textarea id="journalTextarea" placeholder="Daily reflection…"></textarea>
-
-
-</div>
 </div>
 
 <script>
