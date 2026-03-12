@@ -1,290 +1,421 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>My Journal</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8"/>
+<title>Period Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Inter', sans-serif;
-      background: #f5eee8;
-      color: #000;
-      display: flex;
-      justify-content: center;
-    }
+<style>
 
-    .app {
-      max-width: 430px;
-      width: 100%;
-      min-height: 100vh;
-      position: relative;
-    }
-
-    .page { display: none; min-height: 100vh; padding: 16px; box-sizing: border-box; }
-    .page.active { display: block; }
-
-    .cover-wrapper { position: relative; margin-top: 8px; }
-    .cover-wrapper img { width: 100%; border-radius: 16px; box-shadow: 0 0px 0px rgba(0,0,0,0.12); }
-    .skip-btn, .next-btn {
-      position: absolute; background: none; border: none; cursor: pointer;
-    }
-    .skip-btn { bottom: 16px; left: 50%; transform: translateX(-50%); font-size: 14px; text-decoration: underline; }
-    .next-btn { bottom: 16px; right: 16px; font-size: 28px; }
-
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-      font-size: 14px;
-      line-height: 1.6;
-      margin-top: 2px;
-      position: relative;
-    }
-
-    textarea {
-      font-family: 'Inter', sans-serif;
-    }
-
-  /* Calendar day buttons only */
-#calendarGrid button {
-  border: 1px solid #f5eee8;
-  padding: 6px;
-  border-radius: 8px;
-  background: #fff;
-  cursor: pointer;
+body{
+margin:0;
+font-family:'Inter',sans-serif;
+background:#f5eee8;
+display:flex;
+justify-content:center;
 }
 
-#prevMonth,
-#nextMonth,
-#closeCalendar,
-#downloadEntries {
-  background: #fff;
-  border: #fff;
-  padding: 0;
-  box-shadow: none;
-  border-radius: 0;
-  cursor: pointer;
+.app{
+max-width:430px;
+width:100%;
+padding:16px;
 }
 
-    html, body {
-  height: 100%;
-  overflow: hidden;
+.card{
+background:#fff;
+border-radius:16px;
+padding:20px;
+box-shadow:0 10px 25px rgba(0,0,0,0.12);
 }
 
-  </style>
+textarea{
+font-family:'Inter',sans-serif;
+width:100%;
+resize:none;
+border:none;
+outline:none;
+padding:12px;
+font-size:14px;
+line-height:1.6;
+min-height:18vh;
+}
+
+#calendarGrid{
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:6px;
+text-align:center;
+}
+
+.dayBtn{
+position:relative;
+border:1px solid #eee;
+padding:8px;
+border-radius:8px;
+background:#fff;
+cursor:pointer;
+font-size:12px;
+}
+
+.today{
+border:2px solid #000;
+}
+
+.entryDot{
+position:absolute;
+bottom:4px;
+right:4px;
+width:5px;
+height:5px;
+background:#000;
+border-radius:50%;
+}
+
+/* PHASE COLORS */
+
+.menstrual{background:#f7d6d6;}
+.follicular{background:#e3f4e3;}
+.ovulation{background:#7bdc8b;}
+.luteal{background:#e3edf8;}
+.fertile{border:2px solid #4caf50;}
+
+select{
+padding:6px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+</style>
 </head>
 
 <body>
+
 <div class="app">
 
-    <!-- JOURNAL PAGE -->
-  <div id="journalPage" class="page active">
-   <div class="card" id="journalCard" style="background:none; box-shadow:none; margin-top:2px;">
-      <h1 style="font-size:22px; margin-bottom:6px;">My Journal</h1>
-      <p style="font-size:14px; color:#555; margin-bottom:8px;">A quiet space to meet yourself</p>
+<div class="card">
 
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-  <p id="currentDate" style="font-size:12px; color:#888;"></p>
+<h1 style="font-size:22px;margin-bottom:6px;">Period Tracker</h1>
 
-  <div style="display:flex; gap:8px;">
-    <button id="newEntryBtn"
-      style="font-size:16px; padding:8px 16px; border-radius:8px; border:2px solid #fff; box-shadow:none; background:#f5eee8; transition: background 0.2s ease; cursor:pointer; -webkit-appearance: none;
-    appearance: none;
-  ">
-      New Entry
-    </button>
+<p id="guidance" style="font-size:14px;color:#555;margin-bottom:12px;"></p>
 
-    <button id="toggleLined"
-      style="font-size:16px; padding:8px 16px; border-radius:8px; border:2px solid #fff; box-shadow:none; background:#f5eee8; transition: background 0.2s ease; cursor:pointer;">
-      Lined
-    </button>
-  </div>
+<div style="display:flex;gap:12px;margin-bottom:16px;">
+
+<div>
+<label style="font-size:12px;">Cycle length</label><br>
+<select id="cycleLength"></select>
 </div>
 
+<div>
+<label style="font-size:12px;">Period length</label><br>
+<select id="periodLength"></select>
+</div>
 
-      <div style="background:#fff; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.12); padding:16px; display:flex; flex-direction:column;">
-        <textarea id="journalTextarea" placeholder="Start writing…" style="width:100%; min-height:60vh; resize:none; border:none; outline:none; background:#fff; border-radius:16px; padding:16px; font-size:14px; line-height:1.6;"></textarea>
-      </div>
+</div>
 
-      <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:12px;">
-        <button id="earlierEntry" style="background:none; border:none; cursor:pointer;">← Earlier entry</button>
-        <button id="laterEntry" style="background:none; border:none; cursor:pointer;">Later entry →</button>
-      </div>
+<div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+<button id="prevMonth">‹</button>
+<h3 id="calendarTitle"></h3>
+<button id="nextMonth">›</button>
+</div>
 
-      <div style="display:flex; justify-content:center; margin-top:16px;">
-        <button id="openCalendar" style="font-size:16px; padding:12px 20px; border-radius:8px; border:2px solid #fff; box-shadow:none; background:#f5eee8; transition: background 0.2s ease; cursor:pointer;">Calendar</button>
-      </div>
-    </div>
+<div id="calendarGrid"></div>
 
-    <!-- Calendar Overlay -->
-    <div id="calendarOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); justify-content:center; align-items:center;">
-      <div style="background:#fff; border-radius:16px; padding:16px; width:90%; max-width:360px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <button id="prevMonth">‹</button>
-          <h2 id="calendarTitle" style="font-weight:bold;"></h2>
-          <button id="nextMonth">›</button>
-        </div>
-        <div id="calendarGrid" style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px; text-align:center; font-size:12px;"></div>
-        <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:12px;">
-          <button id="closeCalendar" style="text-decoration:underline;">Close</button>
-          <button id="downloadEntries" style="text-decoration:underline;">Download</button>
-        </div>
-      </div>
-    </div>
-  </div>
+<hr style="margin:20px 0;">
 
+<p id="currentDate" style="font-size:12px;color:#888;"></p>
+
+<textarea id="journalTextarea" placeholder="Daily reflection…"></textarea>
+
+<div style="display:flex;justify-content:space-between;margin-top:10px;font-size:12px;">
+<button id="earlierEntry">← Earlier entry</button>
+<button id="laterEntry">Later entry →</button>
+</div>
+
+</div>
 </div>
 
 <script>
-  // SHOW PAGE
-function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const page = document.getElementById(id);
-  if (!page) return;
 
-  page.classList.add('active');
+/* STORAGE */
 
-  if (id === 'journalPage') {
-    entryIndex = null;
-    currentDate = new Date().toISOString().split('T')[0];
-    textarea.value = '';
-    updateDisplay();
-  }
+const STORAGE_KEY='journal_entries';
+let entries=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+
+let cycleLength=Number(localStorage.getItem('cycle_length')||28);
+let periodLength=Number(localStorage.getItem('period_length')||5);
+let lastPeriod=localStorage.getItem('last_period_start');
+
+/* GUIDANCE 28 */
+
+const guidance28=[
+"Energy low. Focus on rest, comfort, and gentle awareness.",
+"Continue resting and listening to your body’s needs.",
+"Energy may slowly begin returning. Move gently.",
+"Light clarity may appear. Keep the pace soft.",
+"Transition day. Notice energy beginning to rise again.",
+"Energy building. Good day for light planning.",
+"Curiosity and motivation may increase today.",
+"Mental clarity improving. Explore new ideas.",
+"Creative thinking and openness may feel natural.",
+"Steady energy. A supportive day for starting tasks.",
+"Confidence building. Take small forward steps.",
+"Energy continues rising. Communication may feel easier.",
+"Social and expressive energy may increase today.",
+"Peak energy window. Good day for connection and visibility.",
+"Energy still strong. Channel it into meaningful action.",
+"Focused productivity may feel natural today.",
+"Steady, grounded energy supports completion.",
+"Good day for organization and follow-through.",
+"Focus remains steady. Work through practical tasks.",
+"Gradually slow the pace if needed. Notice energy shifts.",
+"Emotional awareness may increase. Listen inward.",
+"Energy may begin to dip. Prioritize supportive routines.",
+"Sensitivity may rise. Protect your energy.",
+"A good day to simplify tasks and reduce pressure.",
+"Restorative activities may feel especially helpful.",
+"Reflect on the past weeks and what you need now.",
+"Slow down and prepare for a new cycle.",
+"Gentle reflection. A new cycle may begin soon."
+];
+
+/* DROPDOWNS */
+
+const cycleSelect=document.getElementById('cycleLength');
+for(let i=21;i<=38;i++){
+let opt=document.createElement('option');
+opt.value=i;
+opt.textContent=i;
+if(i===cycleLength)opt.selected=true;
+cycleSelect.appendChild(opt);
 }
 
-  // JOURNAL LOGIC
-  const STORAGE_KEY = 'journal_entries';
-  let entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-  let today = new Date();
-  let currentDate = today.toISOString().split('T')[0];
-  let entryIndex = null;
-  let lined = false;
-
-  const textarea = document.getElementById('journalTextarea');
-  const currentDateEl = document.getElementById('currentDate');
-  const toggleLinedBtn = document.getElementById('toggleLined');
-  const earlierBtn = document.getElementById('earlierEntry');
-  const laterBtn = document.getElementById('laterEntry');
-  const calendarOverlay = document.getElementById('calendarOverlay');
-  const openCalendarBtn = document.getElementById('openCalendar');
-  const closeCalendarBtn = document.getElementById('closeCalendar');
-  const downloadBtn = document.getElementById('downloadEntries');
-  const calendarGrid = document.getElementById('calendarGrid');
-  const calendarTitle = document.getElementById('calendarTitle');
-  const prevMonthBtn = document.getElementById('prevMonth');
-  const nextMonthBtn = document.getElementById('nextMonth');
-  let calendarMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  const newEntryBtn = document.getElementById('newEntryBtn');
-
-
-  function updateDisplay() {
-  const dayEntries = entries[currentDate] || [];
-
-  if (entryIndex !== null && dayEntries[entryIndex]) {
-    // Existing entry
-    textarea.value = dayEntries[entryIndex].text || '';
-    const ts = dayEntries[entryIndex].timestamp
-      ? new Date(dayEntries[entryIndex].timestamp).toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit'
-        })
-      : '';
-    currentDateEl.textContent = currentDate + (ts ? ' · ' + ts : '');
-  } else {
-    // New entry
-    textarea.value = '';
-    currentDateEl.textContent = currentDate;
-  }
-
-  // Lined / blank toggle
-  toggleLinedBtn.textContent = lined ? 'Blank' : 'Lined';
-  textarea.style.background = lined
-    ? 'repeating-linear-gradient(transparent, transparent 28px, rgba(0,0,0,0.05) 29px)'
-    : 'none';
-
-  // --- NAV BUTTON STATE ---
-  if (entryIndex === null || dayEntries.length === 0) {
-    // New entry or no entries at all
-    earlierBtn.disabled = true;
-    laterBtn.disabled = true;
-  } else {
-    earlierBtn.disabled = entryIndex === 0;
-    laterBtn.disabled = entryIndex === dayEntries.length - 1;
-  }
-
-  // Visual feedback
-  [earlierBtn, laterBtn].forEach(btn => {
-    btn.style.opacity = btn.disabled ? '0.4' : '1';
-    btn.style.pointerEvents = btn.disabled ? 'none' : 'auto';
-  });
+const periodSelect=document.getElementById('periodLength');
+for(let i=2;i<=8;i++){
+let opt=document.createElement('option');
+opt.value=i;
+opt.textContent=i;
+if(i===periodLength)opt.selected=true;
+periodSelect.appendChild(opt);
 }
 
+cycleSelect.onchange=()=>{
+cycleLength=Number(cycleSelect.value);
+localStorage.setItem('cycle_length',cycleLength);
+generateCalendar();
+};
 
+periodSelect.onchange=()=>{
+periodLength=Number(periodSelect.value);
+localStorage.setItem('period_length',periodLength);
+generateCalendar();
+};
 
-  function saveEntry() {
-    if (!textarea.value) return;
-    if (!entries[currentDate]) entries[currentDate] = [];
-    if (entryIndex === null) {
-      entries[currentDate].push({ text: textarea.value, timestamp: new Date().toString() });
-      entryIndex = entries[currentDate].length - 1;
-    } else {
-      entries[currentDate][entryIndex].text = textarea.value;
-    }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-  }
+/* DATE STATE */
 
-  textarea.addEventListener('input', saveEntry);
+let today=new Date();
+let currentDate=today.toISOString().split('T')[0];
 
-  toggleLinedBtn.addEventListener('click', () => { lined = !lined; updateDisplay(); });
-  earlierBtn.addEventListener('click', () => { if(entryIndex>0){entryIndex--; updateDisplay();}});
-  laterBtn.addEventListener('click', () => { if(entryIndex<(entries[currentDate]?.length||0)-1){entryIndex++; updateDisplay();}});
+const textarea=document.getElementById('journalTextarea');
+const currentDateEl=document.getElementById('currentDate');
 
-  newEntryBtn.addEventListener('click', () => {
-  entryIndex = null;                         // detach from old entries
-  currentDate = new Date().toISOString().split('T')[0]; // today
-  textarea.value = '';                       // blank page
-  updateDisplay();
-  textarea.focus();
+/* CYCLE DAY */
+
+function getCycleDay(date){
+
+if(!lastPeriod)return null;
+
+let d=new Date(date);
+let start=new Date(lastPeriod);
+
+let diff=Math.floor((d-start)/86400000);
+
+if(diff<0)return null;
+
+return (diff % cycleLength)+1;
+
+}
+
+/* PHASE */
+
+function getPhase(day){
+
+if(day===null)return '';
+
+if(day<=periodLength)return 'menstrual';
+
+let ovulation=cycleLength-14;
+
+if(day>=ovulation-5 && day<=ovulation-1)return 'fertile';
+
+if(day>=ovulation && day<=ovulation+1)return 'ovulation';
+
+if(day>periodLength && day<ovulation)return 'follicular';
+
+return 'luteal';
+
+}
+
+/* GUIDANCE */
+
+function updateGuidance(){
+
+let day=getCycleDay(currentDate);
+
+if(day && guidance28[day-1]){
+
+document.getElementById('guidance').textContent=guidance28[day-1];
+
+}else{
+
+document.getElementById('guidance').textContent="Tap a day to set the start of your last period.";
+
+}
+
+}
+
+/* JOURNAL */
+
+function updateDisplay(){
+
+const dayEntries=entries[currentDate]||[];
+
+textarea.value=dayEntries.length?dayEntries[dayEntries.length-1].text:'';
+
+currentDateEl.textContent=currentDate;
+
+updateGuidance();
+
+}
+
+textarea.addEventListener('input',()=>{
+
+if(!entries[currentDate])entries[currentDate]=[];
+
+if(entries[currentDate].length===0){
+
+entries[currentDate].push({
+text:textarea.value,
+timestamp:new Date().toString()
 });
 
-  // CALENDAR
-  function generateCalendar() {
-    const year = calendarMonth.getFullYear();
-    const month = calendarMonth.getMonth();
-    calendarTitle.textContent = calendarMonth.toLocaleString('default', {month:'long', year:'numeric'});
-    calendarGrid.innerHTML = '';
-    const startDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month+1, 0).getDate();
+}else{
 
-    ['S','M','T','W','T','F','S'].forEach(d => { const div=document.createElement('div'); div.textContent=d; calendarGrid.appendChild(div);});
-    for(let i=0;i<startDay;i++) calendarGrid.appendChild(document.createElement('div'));
+entries[currentDate][entries[currentDate].length-1].text=textarea.value;
 
-    for(let d=1;d<=daysInMonth;d++){
-      const btn=document.createElement('button');
-      btn.textContent=d;
-      const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      if(entries[dateKey]) btn.style.background='rgba(122,156,183,0.5)';
-      btn.addEventListener('click', ()=>{currentDate=dateKey; entryIndex=(entries[currentDate]?.length||0)-1; updateDisplay(); calendarOverlay.style.display='none';});
-      calendarGrid.appendChild(btn);
-    }
-  }
+}
 
-  openCalendarBtn.addEventListener('click', ()=>{calendarOverlay.style.display='flex'; generateCalendar();});
-  closeCalendarBtn.addEventListener('click', ()=>calendarOverlay.style.display='none');
-  prevMonthBtn.addEventListener('click', ()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1); generateCalendar();});
-  nextMonthBtn.addEventListener('click', ()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1); generateCalendar();});
-  downloadBtn.addEventListener('click', ()=>{
-    let content=''; Object.entries(entries).forEach(([date, dayEntries])=>{ dayEntries.forEach(e=>{content+=`${date} – ${new Date(e.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}\n${e.text}\n\n`;});});
-    const blob = new Blob([content], {type:'text/plain'});
-    const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='journal_entries.txt'; link.click();
-  });
+localStorage.setItem(STORAGE_KEY,JSON.stringify(entries));
 
-  updateDisplay();
+});
+
+/* CALENDAR */
+
+const calendarGrid=document.getElementById('calendarGrid');
+const calendarTitle=document.getElementById('calendarTitle');
+
+let calendarMonth=new Date(today.getFullYear(),today.getMonth(),1);
+
+function generateCalendar(){
+
+calendarGrid.innerHTML='';
+
+const year=calendarMonth.getFullYear();
+const month=calendarMonth.getMonth();
+
+calendarTitle.textContent=
+calendarMonth.toLocaleString('default',{month:'long',year:'numeric'});
+
+const startDay=new Date(year,month,1).getDay();
+const daysInMonth=new Date(year,month+1,0).getDate();
+
+['S','M','T','W','T','F','S'].forEach(d=>{
+let div=document.createElement('div');
+div.textContent=d;
+calendarGrid.appendChild(div);
+});
+
+for(let i=0;i<startDay;i++){
+calendarGrid.appendChild(document.createElement('div'));
+}
+
+for(let d=1;d<=daysInMonth;d++){
+
+const btn=document.createElement('button');
+btn.className='dayBtn';
+btn.textContent=d;
+
+const dateKey=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+
+let cycleDay=getCycleDay(dateKey);
+let phase=getPhase(cycleDay);
+
+if(phase)btn.classList.add(phase);
+
+if(dateKey===today.toISOString().split('T')[0])
+btn.classList.add('today');
+
+if(entries[dateKey]){
+let dot=document.createElement('div');
+dot.className='entryDot';
+btn.appendChild(dot);
+}
+
+/* TAP = JOURNAL */
+
+btn.onclick=()=>{
+currentDate=dateKey;
+updateDisplay();
+};
+
+/* LONG PRESS = SET PERIOD */
+
+let pressTimer;
+
+btn.onmousedown=()=>{
+
+pressTimer=setTimeout(()=>{
+
+if(confirm("Set this as the first day of your period?")){
+
+lastPeriod=dateKey;
+localStorage.setItem('last_period_start',dateKey);
+generateCalendar();
+updateGuidance();
+
+}
+
+},600);
+
+};
+
+btn.onmouseup=()=>clearTimeout(pressTimer);
+btn.onmouseleave=()=>clearTimeout(pressTimer);
+
+calendarGrid.appendChild(btn);
+
+}
+
+}
+
+/* MONTH NAV */
+
+document.getElementById('prevMonth').onclick=()=>{
+calendarMonth.setMonth(calendarMonth.getMonth()-1);
+generateCalendar();
+};
+
+document.getElementById('nextMonth').onclick=()=>{
+calendarMonth.setMonth(calendarMonth.getMonth()+1);
+generateCalendar();
+};
+
+/* INIT */
+
+generateCalendar();
+updateDisplay();
+
 </script>
 
 </body>
