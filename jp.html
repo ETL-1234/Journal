@@ -416,10 +416,15 @@ pressTimer=setTimeout(()=>{
 
 longPress=true;
 
-if(confirm("Set this as the first day of your last period?")){
-
 lastPeriod=dateKey;
 localStorage.setItem('last_period_start',dateKey);
+
+document.getElementById("confirmationMsg").textContent =
+"You've set " + dateKey + " as the first day of your last period.";
+
+setTimeout(()=>{
+document.getElementById("confirmationMsg").textContent="";
+},3000);
 
 generateCalendar();
 updateComment();
