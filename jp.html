@@ -443,6 +443,38 @@ dot.className='entryDot';
 btn.appendChild(dot);
 }
 
+document.getElementById('downloadEntries').onclick = () => {
+    const lines = [];
+    const keys = Object.keys(entries).sort();
+
+    keys.forEach(dateKey => {
+        // Skip entries older than 365 days
+        const entryDate = new Date(dateKey);
+        const diffDays = Math.floor((today - entryDate)/86400000);
+        if(diffDays > 365) {
+            delete entries[dateKey];
+            return;
+        }
+
+        const dayNum = getCycleDay(dateKey) || '-';
+        const phaseName = getPhase(dayNum) || '-';
+        const text = entries[dateKey];
+
+        lines.push(`${dateKey} | Cycle Day: ${dayNum} | Phase: ${phaseName}\n${text}\n`);
+    });
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+
+    const blob = new Blob([lines.join('\n')], {type: "text/plain"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'cycle_journal.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+};
+
+  
   /* TAP */
   
 let pressTimer;
