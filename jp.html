@@ -391,7 +391,7 @@ if(phase)btn.classList.add(phase);
 if(dateKey===today.toISOString().split('T')[0])
 btn.classList.add('today');
 
-if(entries[dateKey]){
+if(entries[dateKey] && entries[dateKey].length > 0){
 let dot=document.createElement('div');
 dot.className='entryDot';
 btn.appendChild(dot);
