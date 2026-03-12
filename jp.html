@@ -353,6 +353,16 @@ if(day > periodLength && day < ovulationDay) return 'follicular';
 return 'luteal';
 
 }
+
+function getTodayPhase(){
+
+let todayKey = today.toISOString().split('T')[0];
+let day = getCycleDay(todayKey);
+
+return getPhase(day);
+
+}
+  
 /* GUIDANCE */
 
 function updateComment(){
