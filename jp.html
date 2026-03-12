@@ -54,18 +54,6 @@ gap:6px;
 text-align:center;
 }
 
-  <button id="returnToday" style="
-position: absolute;
-right: 16px;
-bottom: 16px;
-font-size: 14px;
-background: none;
-border: none;
-cursor: pointer;
-color: black;
-font-style: italic;
-">Today</button>
-
 .dayBtn{
 position:relative;
 border:1px solid #eee;
@@ -177,6 +165,32 @@ border:1px solid #ccc;
 </div>
 
 <script>
+
+    <button id="returnToday" style="
+position: absolute;
+right: 16px;
+bottom: 16px;
+font-size: 14px;
+background: none;
+border: none;
+cursor: pointer;
+color: black;
+font-style: italic;
+">Today</button>
+
+  <button id="downloadEntries" style="
+position: absolute;
+right: 16px;
+bottom: 48px;
+font-size: 14px;
+background: none;
+border: none;
+cursor: pointer;
+color: black;
+font-style: italic;
+">Download</button>
+
+  
 
 // Convert old object entries to strings if needed
 for (let key in entries){
