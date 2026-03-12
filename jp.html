@@ -490,8 +490,8 @@ calendarGrid.appendChild(btn);
             return;
         }
 
-        const dayNum = getCycleDay(dateKey) || '-';
         const phaseName = getPhase(dayNum) || '-';
+        const dayNum = getCycleDay(dateKey) || '-';
         const text = entries[dateKey];
 
         lines.push(`${dateKey} | Cycle Day: ${dayNum} | Phase: ${phaseName}\n${text}\n`);
