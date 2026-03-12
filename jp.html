@@ -21,6 +21,31 @@ justify-content:center;
 max-width:430px;
 width:100%;
 padding:16px;
+
+    <button id="returnToday" style="
+position: absolute;
+right: 16px;
+bottom: 16px;
+font-size: 14px;
+background: none;
+border: none;
+cursor: pointer;
+color: black;
+font-style: italic;
+">Today</button>
+
+  <button id="downloadEntries" style="
+position: absolute;
+right: 16px;
+bottom: 48px;
+font-size: 14px;
+background: none;
+border: none;
+cursor: pointer;
+color: black;
+font-style: italic;
+">Download</button>
+  
 }
 
 .card{
@@ -166,31 +191,7 @@ border:1px solid #ccc;
 
 <script>
 
-    <button id="returnToday" style="
-position: absolute;
-right: 16px;
-bottom: 16px;
-font-size: 14px;
-background: none;
-border: none;
-cursor: pointer;
-color: black;
-font-style: italic;
-">Today</button>
 
-  <button id="downloadEntries" style="
-position: absolute;
-right: 16px;
-bottom: 48px;
-font-size: 14px;
-background: none;
-border: none;
-cursor: pointer;
-color: black;
-font-style: italic;
-">Download</button>
-
-  
 
 // Convert old object entries to strings if needed
 for (let key in entries){
