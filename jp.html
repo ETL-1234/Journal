@@ -493,6 +493,14 @@ calendarMonth.setMonth(calendarMonth.getMonth()+1);
 generateCalendar();
 };
 
+  document.getElementById('returnToday').onclick = () => {
+    calendarMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    currentDate = today.toISOString().split('T')[0];
+    generateCalendar();
+    updateDisplay();
+    updateComment();
+};
+
   /* SWIPE */
   let startX = 0;
 
