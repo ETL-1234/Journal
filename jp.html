@@ -314,9 +314,9 @@ document.getElementById('comment').textContent =
 
 function updateDisplay(){
 
-const dayEntries=entries[currentDate]||[];
+const dayEntry = entries[currentDate] || "";
 
-textarea.value=dayEntries.length?dayEntries[dayEntries.length-1].text:'';
+textarea.value = dayEntry;
 
 currentDateEl.textContent=currentDate;
 
