@@ -306,7 +306,20 @@ textarea.value=dayEntries.length?dayEntries[dayEntries.length-1].text:'';
 
 currentDateEl.textContent=currentDate;
 
-updateGuidance();
+updateComment();
+
+/* SHOW / HIDE NAV */
+
+const earlierBtn=document.getElementById('earlierEntry');
+const laterBtn=document.getElementById('laterEntry');
+
+if(dayEntries.length>1){
+earlierBtn.style.display='block';
+laterBtn.style.display='block';
+}else{
+earlierBtn.style.display='none';
+laterBtn.style.display='none';
+}
 
 }
 
