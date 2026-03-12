@@ -339,20 +339,7 @@ laterBtn.style.display='none';
 
 textarea.addEventListener('input',()=>{
 
-if(!entries[currentDate])entries[currentDate]=[];
-
-if(entries[currentDate].length===0){
-
-entries[currentDate].push({
-text:textarea.value,
-timestamp:new Date().toString()
-});
-
-}else{
-
-entries[currentDate][entries[currentDate].length-1].text=textarea.value;
-
-}
+entries[currentDate] = textarea.value;
 
 localStorage.setItem(STORAGE_KEY,JSON.stringify(entries));
 
