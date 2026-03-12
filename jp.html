@@ -263,17 +263,23 @@ return (diff % cycleLength)+1;
 
 function getPhase(day){
 
-if(day===null)return '';
+if(day===null) return '';
 
-if(day<=periodLength)return 'menstrual';
+if(day <= periodLength) return 'menstrual';
 
-let ovulation=cycleLength-14;
+/* fertile window */
 
-if(day>=ovulation-5 && day<=ovulation-1)return 'fertile';
+if(day >= 7 && day <= 11) return 'fertile';
 
-if(day>=ovulation && day<=ovulation+1)return 'ovulation';
+/* ovulation */
 
-if(day>periodLength && day<ovulation)return 'follicular';
+if(day >= 14 && day <= 16) return 'ovulation';
+
+/* follicular */
+
+if(day > periodLength && day < 14) return 'follicular';
+
+/* luteal */
 
 return 'luteal';
 
