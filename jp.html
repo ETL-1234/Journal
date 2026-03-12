@@ -261,27 +261,33 @@ return (diff % cycleLength)+1;
 
 /* PHASE */
 
-function getPhase(day, cycleLength, periodLength){
+function getPhase(day){
 
 if(day === null) return '';
 
 const ovulationDay = cycleLength - 14;
-
 const fertileStart = Math.max(1, ovulationDay - 5);
-const fertileEnd = Math.min(cycleLength, ovulationDay + 1);
+const fertileEnd = Math.min(cycleLength, ovulationDay - 1);
 
 if(day <= periodLength) return 'menstrual';
 
-if(day === ovulationDay) return 'ovulation';
+/* fertile window BEFORE ovulation */
 
 if(day >= fertileStart && day <= fertileEnd) return 'fertile';
 
+/* ovulation */
+
+if(day === ovulationDay) return 'ovulation';
+
+/* follicular */
+
 if(day > periodLength && day < ovulationDay) return 'follicular';
+
+/* luteal */
 
 return 'luteal';
 
 }
-
 /* GUIDANCE */
 
 function updateComment(){
