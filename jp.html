@@ -359,13 +359,6 @@ currentDateEl.textContent=currentDate;
 
 updateComment();
 
-textarea.addEventListener('input',()=>{
-
-entries[currentDate] = textarea.value;
-
-localStorage.setItem(STORAGE_KEY,JSON.stringify(entries));
-
-});
 }
   
 /* CALENDAR */
