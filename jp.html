@@ -440,7 +440,14 @@ dot.className='entryDot';
 btn.appendChild(dot);
 }
 
- 
+ function getTodayPhase(){
+
+let todayKey = today.toISOString().split('T')[0];
+let day = getCycleDay(todayKey);
+
+return getPhase(day);
+
+}
   /* TAP */
   
 let pressTimer;
