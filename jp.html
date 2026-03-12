@@ -60,7 +60,16 @@ font-size:12px;
 }
 
 .today{
-border:2px solid #000;
+position:relative;
+}
+
+.today::after{
+content:'';
+position:absolute;
+inset:0;
+background:rgba(0,0,0,0.12);
+border-radius:8px;
+pointer-events:none;
 }
 
 .entryDot{
