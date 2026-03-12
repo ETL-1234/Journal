@@ -384,6 +384,16 @@ document.getElementById('comment').textContent =
 
 }
 
+  const phase = getTodayPhase();
+
+if(phase){
+document.getElementById("todayPhase").textContent =
+"Today’s phase: " + phase.charAt(0).toUpperCase() + phase.slice(1);
+}else{
+document.getElementById("todayPhase").textContent = "";
+}
+  
+
 /* JOURNAL */
 
 function updateDisplay(){
