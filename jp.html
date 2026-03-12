@@ -297,15 +297,18 @@ return 'luteal';
 
 function updateComment(){
 
-let day=getCycleDay(currentDate);
+let todayKey = today.toISOString().split('T')[0];
+let day = getCycleDay(todayKey);
 
 if(day && guidance28[day-1]){
 
-document.getElementById('comment').textContent=guidance28[day-1];
+document.getElementById('comment').textContent =
+guidance28[day-1];
 
 }else{
 
-document.getElementById('comment').textContent="Long-press a day to mark the start of your last period.";
+document.getElementById('comment').textContent =
+"Long-press a day to mark the start of your last period.";
 
 }
 
