@@ -362,21 +362,6 @@ currentDateEl.textContent=currentDate;
 
 updateComment();
 
-/* SHOW / HIDE NAV */
-
-const earlierBtn=document.getElementById('earlierEntry');
-const laterBtn=document.getElementById('laterEntry');
-
-if(dayEntries.length>1){
-earlierBtn.style.display='block';
-laterBtn.style.display='block';
-}else{
-earlierBtn.style.display='none';
-laterBtn.style.display='none';
-}
-
-}
-
 textarea.addEventListener('input',()=>{
 
 entries[currentDate] = textarea.value;
