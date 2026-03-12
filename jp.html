@@ -280,17 +280,17 @@ return 'luteal';
 
 /* GUIDANCE */
 
-function updateGuidance(){
+function updateComment(){
 
 let day=getCycleDay(currentDate);
 
 if(day && guidance28[day-1]){
 
-document.getElementById('guidance').textContent=guidance28[day-1];
+document.getElementById('comment').textContent=guidance28[day-1];
 
 }else{
 
-document.getElementById('guidance').textContent="Tap a day to set the start of your last period.";
+document.getElementById('comment').textContent="Long-press a day to mark the start of your last period.";
 
 }
 
