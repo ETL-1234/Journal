@@ -408,17 +408,22 @@ updateDisplay();
 };
 
 /* LONG PRESS = SET PERIOD */
-
 let pressTimer;
+let longPress=false;
 
 btn.onmousedown=()=>{
 
+longPress=false;
+
 pressTimer=setTimeout(()=>{
+
+longPress=true;
 
 if(confirm("Set this as the first day of your period?")){
 
 lastPeriod=dateKey;
 localStorage.setItem('last_period_start',dateKey);
+
 generateCalendar();
 updateComment();
 
@@ -428,14 +433,19 @@ updateComment();
 
 };
 
-btn.onmouseup=()=>clearTimeout(pressTimer);
+btn.onmouseup=()=>{
+clearTimeout(pressTimer);
+
+if(!longPress){
+currentDate=dateKey;
+updateDisplay();
+generateCalendar();
+}
+
+};
+
 btn.onmouseleave=()=>clearTimeout(pressTimer);
 
-calendarGrid.appendChild(btn);
-
-}
-
-}
 
 /* MONTH NAV */
 
