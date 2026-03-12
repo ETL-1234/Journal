@@ -10,95 +10,119 @@
 <style>
 
 body{
-margin:0;
-font-family:'Inter',sans-serif;
-background:#FFFFFF;
-display:flex;
-justify-content:center;
+  margin:0;
+  font-family:'Inter',sans-serif;
+  background:#FFFFFF;
+  display:flex;
+  justify-content:center;
 }
 
 .app{
-max-width:430px;
-width:100%;
-padding:16px;
+  max-width:430px;
+  width:100%;
+  padding:16px;
 }
 
 .card{
-background:#fff;
-border-radius:16px;
-padding:20px;
-box-shadow:0 0px 0px rgba(0,0,0,0.12);
+  background:#fff;
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 0px 0px rgba(0,0,0,0.12);
+  display:flex;
+  flex-direction:column;
 }
 
-  #comment{
-color: #000;
-font-style: italic;
+#comment{
+  color: #000;
+  font-style: italic;
+  margin-bottom:12px;
 }
 
 textarea{
-font-family:'Inter',sans-serif;
-width:100%;
-resize:none;
-border:none;
-outline:none;
-padding:12px;
-font-size:14px;
-line-height:1.6;
-min-height:18vh;
+  font-family:'Inter',sans-serif;
+  width:100%;
+  resize:none;
+  border:none;
+  outline:none;
+  padding:12px;
+  font-size:14px;
+  line-height:1.6;
+  min-height:18vh;
+  margin-top:8px;
+}
+
+.selectors{
+  display:flex;
+  gap:12px;
+  margin-bottom:16px;
 }
 
 #calendarGrid{
-display:grid;
-grid-template-columns:repeat(7,1fr);
-gap:6px;
-text-align:center;
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:6px;
+  text-align:center;
+  margin-bottom:16px;
 }
 
 .dayBtn{
-position:relative;
-border:1px solid #eee;
-padding:8px;
-border-radius:8px;
-background:#fff;
-cursor:pointer;
-font-size:12px;
+  position:relative;
+  border:1px solid #eee;
+  padding:8px;
+  border-radius:8px;
+  background:#fff;
+  cursor:pointer;
+  font-size:12px;
 }
 
 .today{
-position:relative;
+  position:relative;
 }
 
 .today::after{
-content:'';
-position:absolute;
-inset:0;
-background:rgba(0,0,0,0.12);
-border-radius:8px;
-pointer-events:none;
+  content:'';
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.12);
+  border-radius:8px;
+  pointer-events:none;
 }
 
 .entryDot{
-position:absolute;
-bottom:4px;
-right:4px;
-width:5px;
-height:5px;
-background:#000;
-border-radius:50%;
+  position:absolute;
+  bottom:4px;
+  right:4px;
+  width:5px;
+  height:5px;
+  background:#000;
+  border-radius:50%;
 }
 
 #prevMonth,
 #nextMonth{
-font-size:24px;
-background:none;
-border:none;
-cursor:pointer;
-padding:4px 8px;
+  font-size:24px;
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:4px 8px;
 }
 
+.calendar-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
+}
+
+.buttons{
+  display:flex;
+  justify-content:flex-end;
+  gap:12px;
+  margin-bottom:16px;
+  position:relative;
+}
 
 /* PHASE COLORS */
-
 .menstrual{background:#f7d6d6;}
 .follicular{background:#e3f4e3;}
 .ovulation{background:#95bb97;}
@@ -106,12 +130,13 @@ padding:4px 8px;
 .fertile{background:#e3f4e3;border:2px solid #95bb97;}
 
 select{
-padding:6px;
-border-radius:6px;
-border:1px solid #ccc;
+  padding:6px;
+  border-radius:6px;
+  border:1px solid #ccc;
 }
 
 </style>
+  
 </head>
 
 <body>
