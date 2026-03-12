@@ -192,15 +192,7 @@ border:1px solid #ccc;
 
 <script>
 
-
-
-// Convert old object entries to strings if needed
-for (let key in entries){
-    if (typeof entries[key] === 'object' && entries[key] !== null){
-        entries[key] = entries[key].text || "";
-    }
-}
-  
+ 
 /* STORAGE */
 
 const STORAGE_KEY='cycle_journal_entries';
