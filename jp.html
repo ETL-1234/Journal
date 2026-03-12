@@ -316,8 +316,16 @@ function updateDisplay(){
 
 const dayEntry = entries[currentDate] || "";
 
+const todayKey = today.toISOString().split('T')[0];
+
 textarea.value = dayEntry;
 
+// Only allow editing for today
+if(currentDate === todayKey){
+    textarea.removeAttribute('readonly');
+} else {
+    textarea.setAttribute('readonly', true);
+}
 currentDateEl.textContent=currentDate;
 
 updateComment();
