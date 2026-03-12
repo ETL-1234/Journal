@@ -483,8 +483,10 @@ generateCalendar();
 
 });
 
+  
 /* INIT */
-
+currentDate=today.toISOString().split('T')[0];
+  
 generateCalendar();
 updateDisplay();
 updateComment();
