@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Choose Background</title>
+
+<style>
+
+body{
+font-family:Inter,sans-serif;
+margin:0;
+padding:20px;
+}
+
+h2{
+text-align:center;
+margin-bottom:20px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:10px;
+}
+
+.grid img{
+width:100%;
+aspect-ratio:1/1;
+object-fit:cover;
+cursor:pointer;
+border-radius:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>Choose your background image</h2>
+
+<div id="grid" class="grid"></div>
+
+<script>
+
+const SUPABASE_URL="YOUR_URL";
+const SUPABASE_KEY="YOUR_KEY";
+
+async function loadImages(){
+
+const res = await fetch(
+`${SUPABASE_URL}/rest/v1/gratitudeimage?select=imageurl`,
+{
+headers:{
+apikey:SUPABASE_KEY,
+Authorization:`Bearer ${SUPABASE_KEY}`
+}
+});
+
+const data = await res.json();
+
+const grid=document.getElementById("grid");
+
+data.forEach(img=>{
+
+const el=document.createElement("img");
+
+el.src=img.imageurl;
+
+el.onclick=()=>{
+
+localStorage.setItem("gratitude_bg",img.imageurl);
+
+window.location.href="gratitude.html";
+
+};
+
+grid.appendChild(el);
+
+});
+
+}
+
+loadImages();
+
+</script>
+
+</body>
+</html>
