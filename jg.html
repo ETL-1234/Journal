@@ -268,9 +268,19 @@ Object.keys(entries).sort().forEach(date=>{
 
 const entry = entries[date];
 
+let promptText = "";
+let reflectionText = "";
+
+if(typeof entry === "string"){
+reflectionText = entry;
+}else{
+promptText = entry.prompt || "";
+reflectionText = entry.reflection || "";
+}
+
 text += date + "\n";
-text += "Prompt: " + (entry.prompt || "") + "\n";
-text += "Reflection: " + (entry.reflection || "") + "\n\n";
+text += "Prompt: " + promptText + "\n";
+text += "Reflection: " + reflectionText + "\n\n";
 
 });
 
