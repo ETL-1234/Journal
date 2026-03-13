@@ -230,6 +230,67 @@ let cycleLength=Number(localStorage.getItem('cycle_length')||28);
 let periodLength=Number(localStorage.getItem('period_length')||5);
 let lastPeriod=localStorage.getItem('last_period_start');
 
+
+  /* GUIDANCE SYSTEM */
+
+/* START OF CYCLE (days 1–8) */
+
+const guidanceStart = [
+"Energy low. Focus on rest, comfort, and gentle awareness.",
+"Continue resting and listening to your body’s needs.",
+"Energy may slowly begin returning. Move gently.",
+"Light clarity may appear. Keep the pace soft.",
+"Transition day. Notice energy beginning to rise again.",
+"Energy building. Good day for light planning.",
+"Curiosity and motivation may increase today.",
+"Mental clarity improving. Explore new ideas."
+];
+
+/* MIDDLE – FOLLICULAR */
+
+const guidanceFollicular = [
+"comment 1",
+"comment 2",
+"comment 3",
+"comment 4",
+"comment 5",
+"comment 6",
+"comment 7",
+"comment 8"
+];
+
+/* OVULATION */
+
+const guidanceOvulation = [
+"comment 1",
+"comment 2",
+"comment 3"
+];
+
+/* MIDDLE – LUTEAL */
+
+const guidanceLuteal = [
+"comment 1",
+"comment 2",
+"comment 3",
+"comment 4",
+"comment 5",
+"comment 6",
+"comment 7",
+"comment 8"
+];
+
+/* END OF CYCLE (last 7 days) */
+
+const guidanceEnd = [
+"Energy may begin to dip. Prioritize supportive routines.",
+"Sensitivity may rise. Protect your energy.",
+"A good day to simplify tasks and reduce pressure.",
+"Restorative activities may feel especially helpful.",
+"Prioritize rest and supportive routines.",
+"Slow down and prepare for a new cycle.",
+"Gentle reset. A new cycle may begin soon."
+];
 /* DROPDOWNS */
 
 const cycleSelect=document.getElementById('cycleLength');
