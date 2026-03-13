@@ -241,7 +241,9 @@ let entries=JSON.parse(localStorage.getItem(STORAGE)||"{}");
 
 const textarea=document.getElementById("journal");
 
-textarea.value = entries[today] || "";
+if(entries[today]){
+textarea.value = entries[today].reflection || "";
+}
 
 textarea.addEventListener("input",()=>{
 
