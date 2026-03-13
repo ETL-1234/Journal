@@ -258,7 +258,14 @@ function downloadJournal(){
 let text="";
 
 Object.keys(entries).sort().forEach(date=>{
-text += date + "\n" + entries[date] + "\n\n";
+
+const answer = entries[date] || "";
+const prompt = document.getElementById("prompt").textContent;
+
+text += date + "\n";
+text += "Prompt: " + prompt + "\n";
+text += "Reflection: " + answer + "\n\n";
+
 });
 
 const blob = new Blob([text],{type:"text/plain"});
