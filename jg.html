@@ -266,12 +266,11 @@ let text="";
 
 Object.keys(entries).sort().forEach(date=>{
 
-const answer = entries[date] || "";
-const prompt = document.getElementById("prompt").textContent;
+const entry = entries[date];
 
 text += date + "\n";
-text += "Prompt: " + prompt + "\n";
-text += "Reflection: " + answer + "\n\n";
+text += "Prompt: " + (entry.prompt || "") + "\n";
+text += "Reflection: " + (entry.reflection || "") + "\n\n";
 
 });
 
