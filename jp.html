@@ -384,6 +384,65 @@ return 'luteal';
 
 }
 
+function getGuidance(day){
+
+if(!day) return "Long-press a day to mark the start of your last period.";
+
+const ovulationDay = cycleLength - 14;
+const startLength = guidanceStart.length;
+const endLength = guidanceEnd.length;
+
+/* START SECTION */
+
+if(day <= startLength){
+return guidanceStart[day-1];
+}
+
+/* END SECTION */
+
+if(day > cycleLength - endLength){
+return guidanceEnd[day - (cycleLength - endLength) - 1];
+}
+
+/* FOLLICULAR */
+
+if(day < ovulationDay){
+
+let dynamicStart = startLength + 1;
+let dynamicEnd = ovulationDay - 1;
+
+let index = Math.floor(
+((day - dynamicStart) /
+(dynamicEnd - dynamicStart + 1)) *
+guidanceFollicular.length
+);
+
+return guidanceFollicular[index];
+}
+
+/* OVULATION */
+
+if(day === ovulationDay){
+
+let index = Math.floor(Math.random()*guidanceOvulation.length);
+return guidanceOvulation[index];
+}
+
+/* LUTEAL */
+
+let dynamicStart = ovulationDay + 1;
+let dynamicEnd = cycleLength - endLength;
+
+let index = Math.floor(
+((day - dynamicStart) /
+(dynamicEnd - dynamicStart + 1)) *
+guidanceLuteal.length
+);
+
+return guidanceLuteal[index];
+
+}
+  
 function getTodayPhase(){
 
 let todayKey = today.toISOString().split('T')[0];
