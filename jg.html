@@ -247,7 +247,12 @@ textarea.value = entries[today].reflection || "";
 
 textarea.addEventListener("input",()=>{
 
-entries[today]=textarea.value;
+const promptText = document.getElementById("prompt").textContent;
+
+entries[today] = {
+prompt: promptText,
+reflection: textarea.value
+};
 
 localStorage.setItem(STORAGE,JSON.stringify(entries));
 
