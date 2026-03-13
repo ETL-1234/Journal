@@ -217,7 +217,7 @@ document.getElementById("currentDate").textContent = today;
 async function loadPrompt(){
 
 const res = await fetch(
-`${SUPABASE_URL}/rest/v1/gratitudeprompts?select=gratitude&active=eq.true&order=random()&limit=1`,
+`${SUPABASE_URL}/rest/v1/gratitudeprompts?select=gratitude&active=eq.true`,
 {
 headers:{
 apikey:SUPABASE_ANON_KEY,
@@ -227,7 +227,9 @@ Authorization:`Bearer ${SUPABASE_ANON_KEY}`
 
 const data = await res.json();
 
-document.getElementById("prompt").textContent = data[0].gratitude;
+const random = data[Math.floor(Math.random()*data.length)];
+
+document.getElementById("prompt").textContent = random.gratitude;
 
 }
 
