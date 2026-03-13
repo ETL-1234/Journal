@@ -138,22 +138,18 @@ margin-top:6px;
 <body>
 
 <div class="app">
-<div class="card">
-<div class="promptOverlay"></div>
 
-<div id="promptArea" class="promptArea">
+<div class="overlay"></div>
 
 <div class="imageBtn" onclick="openImages()">
-
 <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8">
 <rect x="3" y="3" width="18" height="18" rx="2"/>
 <circle cx="8.5" cy="8.5" r="1.5"/>
 <path d="M21 15l-5-5L5 21"/>
 </svg>
-
 </div>
 
-<div class="promptContent">
+<div class="promptArea">
 
 <div id="prompt">Loading reflection...</div>
 
@@ -165,6 +161,17 @@ Refresh Prompt
 </button>
 
 </div>
+
+<div class="journalPanel">
+
+<div id="currentDate" class="journalDate"></div>
+
+<textarea id="journal" placeholder="Daily gratitude reflection..."></textarea>
+
+<div class="download" onclick="downloadJournal()">Download</div>
+
+</div>
+
 </div>
 
 
