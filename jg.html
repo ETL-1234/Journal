@@ -190,7 +190,7 @@ const promptArea = document.getElementById("promptArea");
 const savedImage = localStorage.getItem("gratitude_bg");
 
 if(savedImage){
-promptArea.style.backgroundImage = `url(${savedImage})`;
+document.body.style.backgroundImage = `url(${savedImage})`;
 }
 
 /* DATE */
