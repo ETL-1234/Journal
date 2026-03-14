@@ -36,6 +36,20 @@ cursor:pointer;
 border-radius:10px;
 }
 
+  /* hide scrollbar but keep scrolling */
+
+body{
+font-family:'Inter',sans-serif;
+margin:0;
+padding:20px;
+overflow-y:scroll;
+scrollbar-width:none;      /* Firefox */
+}
+
+body::-webkit-scrollbar{
+display:none;              /* Chrome / Safari */
+}
+
 </style>
 </head>
 
