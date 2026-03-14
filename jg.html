@@ -17,6 +17,10 @@ display:flex;
 justify-content:center;
 }
 
+  html, body{
+height:100%;
+}
+
 .app{
 width:100%;
 max-width:900px;
@@ -94,6 +98,7 @@ z-index:3;
 
 .journalPanel{
 min-height:320px;
+flex:1;
 background:rgba(255,255,255,0.65);
 backdrop-filter: blur(12px);
 padding:24px;
@@ -102,11 +107,10 @@ border-top-right-radius:36px;
 box-shadow:0 -12px 30px rgba(0,0,0,0.5);
 display:flex;
 flex-direction:column;
-flex-shrink:0;
 z-index:3;
 margin-top:auto;
 }
-
+  
 /* DATE */
 
 .journalDate{
