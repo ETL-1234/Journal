@@ -192,11 +192,13 @@ const SUPABASE_ANON_KEY = "sb_publishable_VZiTsc0JGVx6tVf2Zu-9uQ_-FwjGpQW";
 
 /* BACKGROUND IMAGE */
 
+const defaultImage = "https://tppyzexttkuvcobbbmaz.supabase.co/storage/v1/object/public/GratitudeImages/Standardbackground.jpg";
+
 const savedImage = localStorage.getItem("gratitude_bg");
 
-if(savedImage){
-document.body.style.backgroundImage = `url(${savedImage})`;
-}
+document.body.style.backgroundImage = savedImage
+  ? `url(${savedImage})`
+  : `url(${defaultImage})`;
 
 /* DATE */
 
