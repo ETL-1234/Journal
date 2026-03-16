@@ -366,6 +366,8 @@ const ovulationDay = cycleLength - 14;
 const fertileStart = Math.max(1, ovulationDay - 5);
 const fertileEnd = Math.min(cycleLength, ovulationDay - 1);
 
+/* menstrual */
+  
 if(day <= periodLength) return 'menstrual';
 
 /* fertile window BEFORE ovulation */
@@ -380,9 +382,14 @@ if(day === ovulationDay) return 'ovulation';
 
 if(day > periodLength && day < ovulationDay) return 'follicular';
 
-/* luteal */
+/* luteal split */
 
-return 'luteal';
+const lutealStart = ovulationDay + 1;
+const lutealMid = lutealStart + Math.floor((cycleLength - lutealStart + 1)/2);
+
+if(day >= lutealStart && day < lutealMid) return 'early-luteal';
+
+return 'late-luteal';
 
 }
 
