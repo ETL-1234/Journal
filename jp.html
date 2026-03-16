@@ -20,7 +20,10 @@ body{
 
 .app {
   width:100%;
+  min-height: 100vh; /* fills screen height */
   max-width:900px; /* or whatever your design allows */
+  display: flex;
+  flex-direction: column;
   padding: 0 16px; /* keeps side padding on wide screens */
   margin: 0 auto;
 }
@@ -31,6 +34,7 @@ body{
   padding:20px 20px 0 20px;
   box-shadow:0 0px 0px rgba(0,0,0,0.12);
   display:flex;
+  flex: 1; /* grows to fill available space */
   flex-direction:column;
 }
 
