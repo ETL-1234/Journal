@@ -266,6 +266,10 @@ reflection: textarea.value
 
 localStorage.setItem(STORAGE,JSON.stringify(entries));
 
+/* auto expand */
+textarea.style.height = "auto";
+textarea.style.height = textarea.scrollHeight + "px";
+
 });
 
 /* DOWNLOAD */
