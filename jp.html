@@ -336,6 +336,10 @@ const textarea=document.getElementById('journalTextarea');
   textarea.addEventListener('input',()=>{
   entries[currentDate] = textarea.value;
   localStorage.setItem(STORAGE_KEY,JSON.stringify(entries));
+
+   /* auto expand */
+  textarea.style.height = "auto";
+  textarea.style.height = textarea.scrollHeight + "px";
 });
   
 const currentDateEl=document.getElementById('currentDate');
