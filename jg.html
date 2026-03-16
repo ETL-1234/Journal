@@ -255,6 +255,9 @@ if(entries[today]){
 textarea.value = entries[today].reflection || "";
 }
 
+textarea.style.height = "auto";
+textarea.style.height = textarea.scrollHeight + "px";
+
 textarea.addEventListener("input",()=>{
 
 const promptText = document.getElementById("prompt").textContent;
