@@ -206,12 +206,22 @@ const defaultImage = "https://tppyzexttkuvcobbbmaz.supabase.co/storage/v1/object
 
 let savedImage = localStorage.getItem("gratitude_bg");
 
-// CLEAN invalid values
 if (!savedImage || savedImage === "null" || savedImage.trim() === "") {
-  savedImage = null;
+  savedImage = defaultImage;
 }
 
-app.style.backgroundImage = `url(${savedImage || defaultImage})`;
+const img = new Image();
+
+img.onload = () => {
+  app.style.backgroundImage = `url(${savedImage})`;
+};
+
+img.onerror = () => {
+  app.style.backgroundImage = `url(${defaultImage})`;
+};
+
+img.src = savedImage;
+
   
 /* DATE */
 
