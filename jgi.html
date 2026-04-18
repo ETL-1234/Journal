@@ -65,40 +65,48 @@ const SUPABASE_URL = "https://tppyzexttkuvcobbbmaz.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_VZiTsc0JGVx6tVf2Zu-9uQ_-FwjGpQW";
 
 async function loadImages(){
+  try{
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/gratitudeimage?select=imageurl`,
+      {
+        headers:{
+          apikey:SUPABASE_ANON_KEY,
+          Authorization:`Bearer ${SUPABASE_ANON_KEY}`
+        }
+      }
+    );
 
-const res = await fetch(
-`${SUPABASE_URL}/rest/v1/gratitudeimage?select=imageurl`,
-{
-headers:{
-apikey:SUPABASE_ANON_KEY,
-Authorization:`Bearer ${SUPABASE_ANON_KEY}`
+    const data = await res.json();
+
+    if(!data || data.length === 0){
+      throw new Error("No images returned");
+    }
+
+    const grid = document.getElementById("grid");
+
+    data.forEach(img=>{
+      if(!img.imageurl) return;
+
+      const el = document.createElement("img");
+      el.src = img.imageurl;
+
+      el.onerror = () => el.style.display = "none"; // hide broken images
+
+      el.onclick = ()=>{
+        localStorage.setItem("gratitude_bg", img.imageurl);
+        window.location.href="https://etl-1234.github.io/Journal/jg.html";
+      };
+
+      grid.appendChild(el);
+    });
+
+  }catch(err){
+    console.error("Image load failed:", err);
+
+    document.getElementById("grid").innerHTML =
+      "<p style='text-align:center'>Images unavailable</p>";
+  }
 }
-});
-
-const data = await res.json();
-
-const grid=document.getElementById("grid");
-
-data.forEach(img=>{
-
-const el=document.createElement("img");
-
-el.src=img.imageurl;
-
-el.onclick=()=>{
-
-localStorage.setItem("gratitude_bg",img.imageurl);
-
-window.location.href="https://etl-1234.github.io/Journal/jg.html";
-
-};
-
-grid.appendChild(el);
-
-});
-
-}
-
 loadImages();
 
 </script>
