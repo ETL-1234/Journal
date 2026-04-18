@@ -200,14 +200,19 @@ const SUPABASE_ANON_KEY = "sb_publishable_VZiTsc0JGVx6tVf2Zu-9uQ_-FwjGpQW";
 
 /* BACKGROUND IMAGE */
 
+const app = document.querySelector(".app");
+
 const defaultImage = "https://tppyzexttkuvcobbbmaz.supabase.co/storage/v1/object/public/GratitudeImages/Standardbackground.jpg";
 
-const savedImage = localStorage.getItem("gratitude_bg");
+let savedImage = localStorage.getItem("gratitude_bg");
 
-document.querySelector(".app").style.backgroundImage = savedImage
-  ? `url(${savedImage})`
-  : `url(${defaultImage})`;
+// CLEAN invalid values
+if (!savedImage || savedImage === "null" || savedImage.trim() === "") {
+  savedImage = null;
+}
 
+app.style.backgroundImage = `url(${savedImage || defaultImage})`;
+  
 /* DATE */
 
 const today = new Date().toISOString().split('T')[0];
