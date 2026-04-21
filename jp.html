@@ -507,8 +507,31 @@ periodSelect.onchange = () => {
   settingsOpen = false;
 };
 
+const resetBtn = document.getElementById("resetCycle");
 
+  resetBtn.onclick = () => {
 
+  // remove cycle tracking ONLY
+  localStorage.removeItem('last_period_start');
+  lastPeriod = null;
+
+  // optional: clear phase display
+  document.getElementById("todayPhase").textContent = "";
+
+  // show guidance fallback
+  updateComment();
+
+  // regenerate calendar without phases
+  generateCalendar();
+
+  // UX feedback
+  document.getElementById("confirmationMsg").textContent =
+    "Cycle has been reset. Please select the first day of your last period.";
+
+  setTimeout(()=>{
+    document.getElementById("confirmationMsg").textContent="";
+  },3000);
+};
   
 /* CYCLE DAY */
 
