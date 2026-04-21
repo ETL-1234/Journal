@@ -453,7 +453,50 @@ downloadBtn.addEventListener("pointerleave", () => {
   clearTimeout(downloadPressTimer);
 });
 
+const toggleBtn = document.getElementById("toggleSettings");
+const settingsPanel = document.getElementById("settingsPanel");
 
+let settingsOpen = false;
+
+// check if user already has settings
+if(localStorage.getItem('cycle_length')){
+  toggleBtn.textContent = "Update settings";
+} else {
+  settingsPanel.style.display = "flex";
+}
+
+toggleBtn.onclick = () => {
+
+  settingsOpen = !settingsOpen;
+
+  if(settingsOpen){
+    settingsPanel.style.display = "flex";
+  } else {
+    settingsPanel.style.display = "none";
+    toggleBtn.textContent = "Update settings";
+  }
+};
+
+// when user changes values → auto close
+cycleSelect.onchange = () => {
+  cycleLength = Number(cycleSelect.value);
+  localStorage.setItem('cycle_length', cycleLength);
+  generateCalendar();
+
+  settingsPanel.style.display = "none";
+  toggleBtn.textContent = "Update settings";
+  settingsOpen = false;
+};
+
+periodSelect.onchange = () => {
+  periodLength = Number(periodSelect.value);
+  localStorage.setItem('period_length', periodLength);
+  generateCalendar();
+
+  settingsPanel.style.display = "none";
+  toggleBtn.textContent = "Update settings";
+  settingsOpen = false;
+};
 
 
 
