@@ -174,6 +174,15 @@ textarea{
   font-family:'Inter',sans-serif;
 }
 
+  .tooltip{
+  font-size:12px;
+  color:#5c6b5c;
+  text-align:center;
+  margin-top:6px;
+  opacity:0;
+  transition:opacity 0.2s ease;
+}
+
   .phaseDisplay{
   font-size:18px;
   color:#000;
@@ -260,6 +269,8 @@ select{
 </button>
 </div>
 
+      <p id="downloadTooltip" class="tooltip"></p>
+    
 <textarea id="journalTextarea" placeholder="Daily reflection…"></textarea>
 
 </div>
