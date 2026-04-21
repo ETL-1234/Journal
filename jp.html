@@ -402,6 +402,45 @@ const textarea=document.getElementById('journalTextarea');
   
 const currentDateEl=document.getElementById('currentDate');
 
+const downloadBtn = document.getElementById("downloadEntries");
+const tooltip = document.getElementById("downloadTooltip");
+
+let downloadPressTimer;
+let isLongPress = false;
+
+downloadBtn.addEventListener("pointerdown", () => {
+  isLongPress = false;
+
+  downloadPressTimer = setTimeout(() => {
+    isLongPress = true;
+
+    tooltip.textContent = "Download your reflections for the last 365 days";
+    tooltip.style.opacity = 1;
+
+    setTimeout(() => {
+      tooltip.style.opacity = 0;
+    }, 2500);
+
+  }, 600);
+});
+
+downloadBtn.addEventListener("pointerup", () => {
+  clearTimeout(downloadPressTimer);
+
+  if (!isLongPress) {
+    downloadBtn.click(); // keeps your existing download behavior
+  }
+});
+
+downloadBtn.addEventListener("pointerleave", () => {
+  clearTimeout(downloadPressTimer);
+});
+
+
+
+
+
+  
 /* CYCLE DAY */
 
 function getCycleDay(date){
