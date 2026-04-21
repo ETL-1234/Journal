@@ -210,6 +210,22 @@ select{
   font-size:14px;
 }
 
+  #settingsPanel{
+  display:none;
+}
+  
+  .settingsToggle{
+  font-size:14px;
+  background:#F8F3EF;
+  border:1.5px solid #F8F3EF;
+  border-radius:8px;
+  padding:8px 12px;
+  box-shadow:0 2px 4px rgba(0,0,0,0.10);
+  cursor:pointer;
+  margin-bottom:16px;
+  font-family:'Inter',sans-serif;
+}
+
 </style>
   
 </head>
@@ -220,6 +236,7 @@ select{
   <div class="card">
 
     <h1 style="font-size:20px;margin-bottom:6px;">Period Tracker</h1>
+    <button id="toggleSettings" class="settingsToggle">Choose settings</button>
 
     <!-- Cycle & Period Length Selectors -->
      <div id="settingsPanel" class="selectors">
