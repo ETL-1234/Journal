@@ -669,15 +669,6 @@ getGuidance(day);
 
 }
 
-  const phase = getTodayPhase();
-
-if(phase){
-document.getElementById("todayPhase").innerHTML =
-"<strong>Today’s phase:</strong> " + phase.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
-}else{
-document.getElementById("todayPhase").textContent = "";
-}
-
 function updateTodayPhase(){
 
   const phase = getTodayPhase();
