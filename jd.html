@@ -196,11 +196,6 @@ function showPage(id) {
     currentDateEl.textContent = currentDate;
   }
 
-  // Lined / blank toggle
-  toggleLinedBtn.textContent = lined ? 'Blank' : 'Lined';
-  textarea.style.background = lined
-    ? 'repeating-linear-gradient(transparent, transparent 28px, rgba(0,0,0,0.05) 29px)'
-    : 'none';
 
   // --- NAV BUTTON STATE ---
   if (entryIndex === null || dayEntries.length === 0) {
