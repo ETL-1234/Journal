@@ -263,6 +263,14 @@ function showPage(id) {
 
   textarea.addEventListener('input', saveEntry);
 
+  // auto-expand (no scroll)
+function autoResize() {
+  textarea.style.height = "auto";
+  textarea.style.height = textarea.scrollHeight + "px";
+}
+
+textarea.addEventListener('input', autoResize);
+
   earlierBtn.addEventListener('click', () => { if(entryIndex>0){entryIndex--; updateDisplay();}});
   laterBtn.addEventListener('click', () => { if(entryIndex<(entries[currentDate]?.length||0)-1){entryIndex++; updateDisplay();}});
 
