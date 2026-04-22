@@ -235,7 +235,6 @@ function showPage(id) {
 
   textarea.addEventListener('input', saveEntry);
 
-  toggleLinedBtn.addEventListener('click', () => { lined = !lined; updateDisplay(); });
   earlierBtn.addEventListener('click', () => { if(entryIndex>0){entryIndex--; updateDisplay();}});
   laterBtn.addEventListener('click', () => { if(entryIndex<(entries[currentDate]?.length||0)-1){entryIndex++; updateDisplay();}});
 
