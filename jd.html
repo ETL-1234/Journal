@@ -138,10 +138,17 @@
   </div>
 </div>
 
+<div class="journalPanel">
 
-      <div style="background:#fff; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.12); padding:16px; display:flex; flex-direction:column;">
-        <textarea id="journalTextarea" placeholder="Start writing…" style="width:100%; min-height:60vh; resize:none; border:none; outline:none; background:#fff; border-radius:16px; padding:16px; font-size:14px; line-height:1.6;"></textarea>
-      </div>
+  <textarea id="journalTextarea" placeholder="Start writing..."></textarea>
+
+  <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:12px;">
+    <button id="earlierEntry" style="background:none; border:none; cursor:pointer;">← Earlier entry</button>
+    <button id="laterEntry" style="background:none; border:none; cursor:pointer;">Later entry →</button>
+  </div>
+
+</div>
+       
 
       <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:12px;">
         <button id="earlierEntry" style="background:none; border:none; cursor:pointer;">← Earlier entry</button>
