@@ -249,9 +249,11 @@ function showPage(id) {
     btn.style.opacity = btn.disabled ? '0.4' : '1';
     btn.style.pointerEvents = btn.disabled ? 'none' : 'auto';
   });
+
+    autoResize();
 }
 
-autoResize();
+
 
   function saveEntry() {
     if (!textarea.value) return;
