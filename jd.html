@@ -19,7 +19,7 @@
 
      html, body {
   height: 100vh;
-  overflow: hidden;
+  overflow: 100%;
 }
 
     .app {
@@ -33,7 +33,7 @@
     .page { 
     display: none; 
     min-height: 100vh; 
-    padding: 16px 16px 0 16px;
+    padding: 16px;
     box-sizing: border-box; 
     }
     
@@ -102,6 +102,7 @@
   width: 100%;           /* stay inside container */
   box-sizing: border-box; /*  prevents overflow */
   position: sticky;
+  overflow: hidden;   
 }
 
     .entryNav {
