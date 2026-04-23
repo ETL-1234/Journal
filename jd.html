@@ -23,28 +23,55 @@
 }
 
     .app {
-      max-width: 430px;
+      max-width: 900px;
       width: 100%;
       min-height: 100vh;
       position: relative;
+      display:flex;
     }
 
     .page { 
-     display: none; 
-     min-height: 100vh; 
+    display: none; 
+    min-height: 100vh; 
     padding: 16px 16px 0 16px;
     box-sizing: border-box; 
     }
     
-    .page.active { display: block; }
-
-    .cover-wrapper { position: relative; margin-top: 8px; }
-    .cover-wrapper img { width: 100%; border-radius: 16px; box-shadow: 0 0px 0px rgba(0,0,0,0.12); }
-    .skip-btn, .next-btn {
-      position: absolute; background: none; border: none; cursor: pointer;
+    .page.active { 
+      display: block; 
     }
-    .skip-btn { bottom: 16px; left: 50%; transform: translateX(-50%); font-size: 14px; text-decoration: underline; }
-    .next-btn { bottom: 16px; right: 16px; font-size: 28px; }
+
+    .cover-wrapper { 
+      position: relative; 
+      margin-top: 8px; 
+    }
+    
+    .cover-wrapper img { 
+      width: 100%; 
+      border-radius: 16px; 
+      box-shadow: 0 0px 0px rgba(0,0,0,0.12); 
+    }
+    
+    .skip-btn, .next-btn {
+      position: absolute; 
+      background: none; 
+      border: none; 
+      cursor: pointer;
+    }
+    
+    .skip-btn { 
+      bottom: 16px; 
+      left: 50%; 
+      transform: translateX(-50%); 
+      font-size: 14px; 
+      text-decoration: underline; 
+    }
+    
+    .next-btn { 
+      bottom: 16px; 
+      right: 16px; 
+      font-size: 28px;
+    }
 
     .card {
       background: #fff;
