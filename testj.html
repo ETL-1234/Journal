@@ -447,7 +447,17 @@ function autoResize() {
     }
   }
 
-  openCalendarBtn.addEventListener('click', ()=>{calendarOverlay.style.display='flex'; generateCalendar();});
+  openCalendarBtn.addEventListener('click', () => {
+
+// ANALYTICS:
+  track("calendar_opened", {
+    content: CONTENT_NAME
+  });
+
+  calendarOverlay.style.display = 'flex';
+  generateCalendar();
+});
+  
   closeCalendarBtn.addEventListener('click', ()=>calendarOverlay.style.display='none');
   prevMonthBtn.addEventListener('click', ()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1); generateCalendar();});
   nextMonthBtn.addEventListener('click', ()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1); generateCalendar();});
