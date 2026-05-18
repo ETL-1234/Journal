@@ -359,7 +359,23 @@ content: CONTENT_NAME
     localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
   }
 
-  textarea.addEventListener('input', saveEntry);
+  
+  textarea.addEventListener('input', () => {
+    // ANALYTICS
+  // Start session on first keystroke
+  if (!hasTrackedEntryStart) {
+    sessionStartTime = Date.now();
+
+    track("entry_started", {
+      content: CONTENT_NAME
+    });
+
+    hasTrackedEntryStart = true;
+  }
+
+  saveEntry();
+  autoResize();
+});
 
   // auto-expand (no scroll)
 function autoResize() {
