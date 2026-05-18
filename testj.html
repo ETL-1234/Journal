@@ -442,7 +442,21 @@ function autoResize() {
       btn.textContent=d;
       const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       if(entries[dateKey]) btn.style.background='rgba(122,156,183,0.5)';
-      btn.addEventListener('click', ()=>{currentDate=dateKey; entryIndex=(entries[currentDate]?.length||0)-1; updateDisplay(); calendarOverlay.style.display='none';});
+      btn.addEventListener('click', () => {
+
+// ANALYTICS:
+  track("entry_selected", {
+    content: CONTENT_NAME,
+    selected_date: dateKey,
+    entry_count: entries[dateKey]?.length || 0
+  });
+
+  currentDate = dateKey;
+  entryIndex = (entries[currentDate]?.length || 0) - 1;
+  updateDisplay();
+  calendarOverlay.style.display = 'none';
+});
+      
       calendarGrid.appendChild(btn);
     }
   }
