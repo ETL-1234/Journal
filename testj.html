@@ -302,6 +302,10 @@ function showPage(id) {
   let calendarMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   const newEntryBtn = document.getElementById('newEntryBtn');
 
+  // TEST ANALYTICS
+track("view", {
+content: CONTENT_NAME
+}); 
 
   function updateDisplay() {
   const dayEntries = entries[currentDate] || [];
