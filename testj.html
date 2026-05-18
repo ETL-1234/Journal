@@ -231,7 +231,7 @@
  
 <script>
  
-// ANALYTICS
+// ANALYTICS core
 const APP_NAME = "ETL";
 const CONTENT_NAME = document.title;
 
@@ -301,7 +301,7 @@ function showPage(id) {
   let calendarMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   const newEntryBtn = document.getElementById('newEntryBtn');
 
-  // ANALYTICS
+  // ANALYTICS journal open
 track("view", {
 content: CONTENT_NAME
 }); 
@@ -350,7 +350,7 @@ content: CONTENT_NAME
 function saveEntry() {
 if (!textarea.value.trim()) return;
 
-// ANALYTICS
+// ANALYTICS wordcount
   const wordCount = textarea.value
     .trim()
     .split(/\s+/)
@@ -368,7 +368,7 @@ if (!textarea.value.trim()) return;
 
 entryIndex = entries[currentDate].length - 1;
 
-// ANALYTICS
+// ANALYTICS saved
     track("entry_saved", {
       content: CONTENT_NAME,
       word_count: wordCount
@@ -377,7 +377,7 @@ entryIndex = entries[currentDate].length - 1;
     // Existing entry updated
 entries[currentDate][entryIndex].text = textarea.value;
 
-// ANALYTICS
+// ANALYTICS updated
     track("entry_updated", {
       content: CONTENT_NAME,
       word_count: wordCount
@@ -391,7 +391,7 @@ entries[currentDate][entryIndex].text = textarea.value;
 
   
   textarea.addEventListener('input', () => {
-    // ANALYTICS
+    // ANALYTICS started session
   // Start session on first keystroke
   if (!hasTrackedEntryStart) {
     sessionStartTime = Date.now();
@@ -444,7 +444,7 @@ function autoResize() {
       if(entries[dateKey]) btn.style.background='rgba(122,156,183,0.5)';
       btn.addEventListener('click', () => {
 
-// ANALYTICS:
+// ANALYTICS date selected 
   track("entry_selected", {
     content: CONTENT_NAME,
     selected_date: dateKey,
@@ -463,7 +463,7 @@ function autoResize() {
 
   openCalendarBtn.addEventListener('click', () => {
 
-// ANALYTICS:
+// ANALYTICS calendar open
   track("calendar_opened", {
     content: CONTENT_NAME
   });
@@ -478,10 +478,19 @@ function autoResize() {
   downloadBtn.addEventListener('click', ()=>{
     let content=''; Object.entries(entries).forEach(([date, dayEntries])=>{ dayEntries.forEach(e=>{content+=`${date} – ${new Date(e.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}\n${e.text}\n\n`;});});
     const blob = new Blob([content], {type:'text/plain'});
-    const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='journal_entries.txt'; link.click();
+    const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='journal_entries.txt'; 
+    
+        // ANALYTICS downloads
+track("download", {
+  content: CONTENT_NAME,
+  total_entries: Object.values(entries)
+    .reduce((sum, dayEntries) => sum + dayEntries.length, 0)
+});
+  
+    link.click();
   });
 
-// ANALYTICS: session completed
+// ANALYTICS session completed
 window.addEventListener('beforeunload', () => {
   if (!sessionStartTime) return;
 
