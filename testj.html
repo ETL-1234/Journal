@@ -347,17 +347,47 @@ content: CONTENT_NAME
 
 
 
-  function saveEntry() {
-    if (!textarea.value) return;
-    if (!entries[currentDate]) entries[currentDate] = [];
-    if (entryIndex === null) {
-      entries[currentDate].push({ text: textarea.value, timestamp: new Date().toString() });
-      entryIndex = entries[currentDate].length - 1;
-    } else {
-      entries[currentDate][entryIndex].text = textarea.value;
-    }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+function saveEntry() {
+if (!textarea.value.trim()) return;
+
+// ANALYTICS
+  const wordCount = textarea.value
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .length;
+
+  if (!entries[currentDate]) entries[currentDate] = [];
+
+  if (entryIndex === null) {
+    // New entry
+    entries[currentDate].push({
+      text: textarea.value,
+      timestamp: new Date().toString()
+    });
+
+entryIndex = entries[currentDate].length - 1;
+
+// ANALYTICS
+    track("entry_saved", {
+      content: CONTENT_NAME,
+      word_count: wordCount
+    });
+  } else {
+    // Existing entry updated
+entries[currentDate][entryIndex].text = textarea.value;
+
+// ANALYTICS
+    track("entry_updated", {
+      content: CONTENT_NAME,
+      word_count: wordCount
+    });
   }
+
+  lastWordCount = wordCount;
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+}
 
   
   textarea.addEventListener('input', () => {
