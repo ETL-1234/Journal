@@ -387,10 +387,12 @@ entryIndex = entries[currentDate].length - 1;
 entries[currentDate][entryIndex].text = textarea.value;
 
 // ANALYTICS updated
-    track("entry_updated", {
-      content: CONTENT_NAME,
-      word_count: wordCount
-    });
+    track("entry_saved", {
+  content: CONTENT_NAME,
+  word_count: wordCount,
+  date: currentDate,
+  entry_length: textarea.value.length
+});
   }
 
   lastWordCount = wordCount;
@@ -509,10 +511,12 @@ window.addEventListener('beforeunload', () => {
   );
 
   track("completed", {
-    content: CONTENT_NAME,
-    time_spent_seconds: timeSpentSeconds,
-    word_count: lastWordCount
-  });
+  content: CONTENT_NAME,
+  time_spent_seconds: timeSpentSeconds,
+  word_count: lastWordCount,
+  session_type: "journal",
+  date: currentDate
+});
 });
   
   updateDisplay();
