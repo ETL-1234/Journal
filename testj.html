@@ -237,7 +237,7 @@ const CONTENT_NAME = document.title;
 
 async function track(eventType, metadata = {}) {
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/analytics_journal`, {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/analytics_journal`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -252,8 +252,15 @@ async function track(eventType, metadata = {}) {
         metadata: metadata
       })
     });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Analytics HTTP Error:", response.status, errorText);
+    } else {
+      console.log("Analytics tracked:", eventType);
+    }
   } catch (err) {
-    console.log("Analytics error:", err);
+    console.error("Analytics network error:", err);
   }
 }
 
