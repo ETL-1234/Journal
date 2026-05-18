@@ -228,6 +228,39 @@
 
 </div>
 
+  // =========================
+// ANALYTICS
+// =========================
+const APP_NAME = "ETL";
+const CONTENT_NAME = document.title;
+
+async function track(eventType, metadata = {}) {
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/analytics_journal`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        Prefer: "return=minimal"
+      },
+      body: JSON.stringify({
+        app_name: APP_NAME,
+        title_name: CONTENT_NAME,
+        event_type: eventType,
+        metadata: metadata
+      })
+    });
+  } catch (err) {
+    console.log("Analytics error:", err);
+  }
+}
+
+// Session tracking
+let hasTrackedEntryStart = false;
+let sessionStartTime = null;
+let lastWordCount = 0;
+
 <script>
   // SHOW PAGE
 function showPage(id) {
