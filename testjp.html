@@ -1045,6 +1045,26 @@ generateCalendar();
 
 });
 
+
+  /* ANALYTICS */
+window.addEventListener('beforeunload', () => {
+
+  if (!sessionStartTime) return;
+
+  const timeSpentSeconds = Math.floor(
+    (Date.now() - sessionStartTime) / 1000
+  );
+
+  track("completed", {
+    content: CONTENT_NAME,
+    time_spent_seconds: timeSpentSeconds,
+    word_count: lastWordCount,
+    session_type: "period_journal",
+    date: currentDate,
+    phase: getPhase(getCycleDay(currentDate)),
+    cycle_day: getCycleDay(currentDate)
+  });
+});
   
 /* INIT */
   
