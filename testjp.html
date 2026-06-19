@@ -987,6 +987,14 @@ calendarGrid.appendChild(btn);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'cycle_journal.txt';
+      
+/* ANALYTICS */
+track("download", {
+  content: CONTENT_NAME,
+  total_entries: Object.keys(entries).length
+});
+
+      
     a.click();
     URL.revokeObjectURL(url);
 };
