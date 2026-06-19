@@ -585,11 +585,13 @@ toggleBtn.onclick = () => {
 
   settingsOpen = !settingsOpen;
 
-  if(settingsOpen){
-    settingsPanel.style.display = "flex";
-  } else {
-    settingsPanel.style.display = "none";
+  settingsPanel.style.display =
+    settingsOpen ? "flex" : "none";
+
+  if (setupComplete()) {
     toggleBtn.textContent = "Update settings";
+  } else {
+    toggleBtn.textContent = "Choose settings";
   }
 };
 
