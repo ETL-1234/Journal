@@ -469,18 +469,6 @@ if(i===periodLength)opt.selected=true;
 periodSelect.appendChild(opt);
 }
 
-cycleSelect.onchange=()=>{
-cycleLength=Number(cycleSelect.value);
-localStorage.setItem('cycle_length',cycleLength);
-generateCalendar();
-};
-
-periodSelect.onchange=()=>{
-periodLength=Number(periodSelect.value);
-localStorage.setItem('period_length',periodLength);
-generateCalendar();
-};
-
 /* DATE STATE */
 
 let today=new Date();
