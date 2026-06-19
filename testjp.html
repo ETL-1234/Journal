@@ -629,6 +629,10 @@ const resetBtn = document.getElementById("resetCycle");
   // remove cycle tracking ONLY
   localStorage.removeItem('last_period_start');
   lastPeriod = null;
+// ANALYTICS
+     track("cycle_reset", {
+    content: CONTENT_NAME
+  });
 
   // 👉 OPEN settings again
   settingsPanel.style.display = "flex";
