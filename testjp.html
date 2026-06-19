@@ -488,6 +488,11 @@ let currentDate=today.toISOString().split('T')[0];
 
 const textarea=document.getElementById('journalTextarea');
 
+/* ANALYTICS */
+  track("view", {
+  content: CONTENT_NAME
+});
+
   textarea.addEventListener('input',()=>{
   entries[currentDate] = textarea.value;
   localStorage.setItem(STORAGE_KEY,JSON.stringify(entries));
