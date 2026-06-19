@@ -571,10 +571,14 @@ const settingsPanel = document.getElementById("settingsPanel");
 let settingsOpen = false;
 
 // check if user already has settings
-if(localStorage.getItem('cycle_length')){
+if (setupComplete()) {
   toggleBtn.textContent = "Update settings";
+  settingsPanel.style.display = "none";
+  settingsOpen = false;
 } else {
+  toggleBtn.textContent = "Choose settings";
   settingsPanel.style.display = "flex";
+  settingsOpen = true;
 }
 
 toggleBtn.onclick = () => {
