@@ -599,35 +599,25 @@ toggleBtn.onclick = () => {
 cycleSelect.onchange = () => {
   cycleLength = Number(cycleSelect.value);
   localStorage.setItem('cycle_length', cycleLength);
-
-  // ANALYTICS 
- track("cycle_length_updated", {
+// ANALYTICS
+  track("cycle_length_updated", {
     content: CONTENT_NAME,
     cycle_length: cycleLength
   });
-  
-  generateCalendar();
 
-  settingsPanel.style.display = "none";
-  toggleBtn.textContent = "Update settings";
-  settingsOpen = false;
+  generateCalendar();
 };
 
-periodSelect.onchange = () => {
+  periodSelect.onchange = () => {
   periodLength = Number(periodSelect.value);
   localStorage.setItem('period_length', periodLength);
-  
 // ANALYTICS
-   track("period_length_updated", {
+  track("period_length_updated", {
     content: CONTENT_NAME,
     period_length: periodLength
   });
-  
-  generateCalendar();
 
-  settingsPanel.style.display = "none";
-  toggleBtn.textContent = "Update settings";
-  settingsOpen = false;
+  generateCalendar();
 };
 
 const resetBtn = document.getElementById("resetCycle");
