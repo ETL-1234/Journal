@@ -919,9 +919,22 @@ btn.addEventListener("pointerup", () => {
 clearTimeout(pressTimer);
 
 if(!longPress){
-currentDate=dateKey;
-updateDisplay();
-generateCalendar();
+/* ANALYTICS */
+  track("entry_selected", {
+    content: CONTENT_NAME,
+    selected_date: dateKey,
+    has_entry: !!entries[dateKey],
+    phase: getPhase(getCycleDay(dateKey)),
+    cycle_day: getCycleDay(dateKey)
+  });
+
+  currentDate = dateKey;
+
+  hasTrackedEntryStart = false;
+  hasTrackedEntrySaved = false;
+
+  updateDisplay();
+  generateCalendar();
 }
 
 });
