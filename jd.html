@@ -228,7 +228,50 @@
 
 </div>
 
+ 
 <script>
+const SUPABASE_URL = "https://tppyzexttkuvcobbbmaz.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_VZiTsc0JGVx6tVf2Zu-9uQ_-FwjGpQW";
+ 
+// ANALYTICS core
+const APP_NAME = "ETL";
+const CONTENT_NAME = document.title;
+
+async function track(eventType, metadata = {}) {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/analytics_journal`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        Prefer: "return=minimal"
+      },
+      body: JSON.stringify({
+        app_name: APP_NAME,
+        title_name: CONTENT_NAME,
+        event_type: eventType,
+        metadata: metadata
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Analytics HTTP Error:", response.status, errorText);
+    } else {
+      console.log("Analytics tracked:", eventType);
+    }
+  } catch (err) {
+    console.error("Analytics network error:", err);
+  }
+}
+
+// Session tracking
+let hasTrackedEntryStart = false;
+let sessionStartTime = null;
+let lastWordCount = 0;
+
+  
   // SHOW PAGE
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -267,6 +310,10 @@ function showPage(id) {
   let calendarMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   const newEntryBtn = document.getElementById('newEntryBtn');
 
+  // ANALYTICS journal open
+track("view", {
+content: CONTENT_NAME
+}); 
 
   function updateDisplay() {
   const dayEntries = entries[currentDate] || [];
@@ -309,19 +356,68 @@ function showPage(id) {
 
 
 
-  function saveEntry() {
-    if (!textarea.value) return;
-    if (!entries[currentDate]) entries[currentDate] = [];
-    if (entryIndex === null) {
-      entries[currentDate].push({ text: textarea.value, timestamp: new Date().toString() });
-      entryIndex = entries[currentDate].length - 1;
-    } else {
-      entries[currentDate][entryIndex].text = textarea.value;
-    }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+function saveEntry() {
+if (!textarea.value.trim()) return;
+
+// ANALYTICS wordcount
+  const wordCount = textarea.value
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .length;
+
+  if (!entries[currentDate]) entries[currentDate] = [];
+
+  if (entryIndex === null) {
+    // New entry
+    entries[currentDate].push({
+      text: textarea.value,
+      timestamp: new Date().toString()
+    });
+
+entryIndex = entries[currentDate].length - 1;
+
+// ANALYTICS saved
+    track("entry_saved", {
+      content: CONTENT_NAME,
+      word_count: wordCount
+    });
+  } else {
+    // Existing entry updated
+entries[currentDate][entryIndex].text = textarea.value;
+
+// ANALYTICS updated
+    track("entry_saved", {
+  content: CONTENT_NAME,
+  word_count: wordCount,
+  date: currentDate,
+  entry_length: textarea.value.length
+});
   }
 
-  textarea.addEventListener('input', saveEntry);
+  lastWordCount = wordCount;
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+}
+
+  
+  textarea.addEventListener('input', () => {
+    // ANALYTICS started session
+  // Start session on first keystroke
+  if (!hasTrackedEntryStart) {
+    sessionStartTime = Date.now();
+
+     track("entry_started", {
+  content: CONTENT_NAME,
+  start_time: new Date().toISOString()
+});
+
+    hasTrackedEntryStart = true;
+  }
+
+  saveEntry();
+  autoResize();
+});
 
   // auto-expand (no scroll)
 function autoResize() {
@@ -329,7 +425,6 @@ function autoResize() {
   textarea.style.height = "100%";
 }
 
-textarea.addEventListener('input', autoResize);
 
   earlierBtn.addEventListener('click', () => { if(entryIndex>0){entryIndex--; updateDisplay();}});
   laterBtn.addEventListener('click', () => { if(entryIndex<(entries[currentDate]?.length||0)-1){entryIndex++; updateDisplay();}});
@@ -359,21 +454,71 @@ textarea.addEventListener('input', autoResize);
       btn.textContent=d;
       const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       if(entries[dateKey]) btn.style.background='rgba(122,156,183,0.5)';
-      btn.addEventListener('click', ()=>{currentDate=dateKey; entryIndex=(entries[currentDate]?.length||0)-1; updateDisplay(); calendarOverlay.style.display='none';});
+      btn.addEventListener('click', () => {
+
+// ANALYTICS date selected 
+  track("entry_selected", {
+    content: CONTENT_NAME,
+    selected_date: dateKey,
+    entry_count: entries[dateKey]?.length || 0
+  });
+
+  currentDate = dateKey;
+  entryIndex = (entries[currentDate]?.length || 0) - 1;
+  updateDisplay();
+  calendarOverlay.style.display = 'none';
+});
+      
       calendarGrid.appendChild(btn);
     }
   }
 
-  openCalendarBtn.addEventListener('click', ()=>{calendarOverlay.style.display='flex'; generateCalendar();});
+  openCalendarBtn.addEventListener('click', () => {
+
+// ANALYTICS calendar open
+  track("calendar_opened", {
+    content: CONTENT_NAME
+  });
+
+  calendarOverlay.style.display = 'flex';
+  generateCalendar();
+});
+  
   closeCalendarBtn.addEventListener('click', ()=>calendarOverlay.style.display='none');
   prevMonthBtn.addEventListener('click', ()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1); generateCalendar();});
   nextMonthBtn.addEventListener('click', ()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1); generateCalendar();});
   downloadBtn.addEventListener('click', ()=>{
     let content=''; Object.entries(entries).forEach(([date, dayEntries])=>{ dayEntries.forEach(e=>{content+=`${date} – ${new Date(e.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}\n${e.text}\n\n`;});});
     const blob = new Blob([content], {type:'text/plain'});
-    const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='journal_entries.txt'; link.click();
+    const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='journal_entries.txt'; 
+    
+        // ANALYTICS downloads
+track("download", {
+  content: CONTENT_NAME,
+  total_entries: Object.values(entries)
+    .reduce((sum, dayEntries) => sum + dayEntries.length, 0)
+});
+  
+    link.click();
   });
 
+// ANALYTICS session completed
+window.addEventListener('beforeunload', () => {
+  if (!sessionStartTime) return;
+
+  const timeSpentSeconds = Math.floor(
+    (Date.now() - sessionStartTime) / 1000
+  );
+
+  track("completed", {
+  content: CONTENT_NAME,
+  time_spent_seconds: timeSpentSeconds,
+  word_count: lastWordCount,
+  session_type: "journal",
+  date: currentDate
+});
+});
+  
   updateDisplay();
 </script>
 
