@@ -593,6 +593,13 @@ toggleBtn.onclick = () => {
 cycleSelect.onchange = () => {
   cycleLength = Number(cycleSelect.value);
   localStorage.setItem('cycle_length', cycleLength);
+
+  // ANALYTICS 
+ track("cycle_length_updated", {
+    content: CONTENT_NAME,
+    cycle_length: cycleLength
+  });
+  
   generateCalendar();
 
   settingsPanel.style.display = "none";
