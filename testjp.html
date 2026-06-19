@@ -753,8 +753,18 @@ return guidanceFollicular[index];
 
 if(day === ovulationDay){
 
-let index = Math.floor(Math.random()*guidanceOvulation.length);
-return guidanceOvulation[index];
+const todayKey = new Date().toISOString().split('T')[0];
+const storageKey = 'ovulation_guidance_' + todayKey;
+
+let index = localStorage.getItem(storageKey);
+
+if(index === null){
+  index = Math.floor(Math.random() * guidanceOvulation.length);
+  localStorage.setItem(storageKey,index);
+}
+
+return guidanceOvulation[Number(index)];
+
 }
 
 /* LUTEAL */
