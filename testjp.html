@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Period Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+
+<style>
+
+body{
+  margin:0;
+  font-family:'Inter',sans-serif;
+  background:#F8F3EF;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+}
+
+  
+  html,body{
+overflow:hidden;
+}
+
+
+.app {
+  width:100%;
+  min-height: 100vh;
+  max-width:900px; /* or whatever your design allows */
+  display: flex;
+  flex-direction: column;
+  padding: 0 16px; /* keeps side padding on wide screens */
+  margin: 0 auto;
+}
+
+.card{
+  background:#F8F3EF;
+  border-radius:16px;
+  padding:20px 20px 0 20px;
+  box-shadow:0 0px 0px rgba(0,0,0,0.12);
+  display:flex;
+  flex: 1; /* grows to fill available space */
+  flex-direction:column;
+}
+
+#comment{
+  color: #000;
+  font-style: italic;
+  text-align:center;
+  margin-bottom:12px;
+}
+
+textarea{
+  font-family:'Inter',sans-serif;
+  width:100%;
+  resize:none;
+  border:none;
+  outline:none;
+  background:transparent;
+  padding:6px 4px;
+  font-size:16px;
+  line-height:1.6;
+  min-height:18vh;
+  margin-top:8px;
+
+  overflow:hidden;
+  -webkit-overflow-scrolling:touch;
+}
+
+.selectors{
+  margin-top:12px;
+  display:flex;
+  gap:12px;
+  margin-bottom:16px;
+}
+
+  select {
+  font-size: 14px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 2px solid #fff;
+  background: #f5eee8; 
+  color: #000;
+  box-shadow: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.2s ease;
+
+  -webkit-appearance: none;
+  appearance: none;
+ 
+}
+
+select:active {
+  background: #e9dfd7;
+}
+ 
+
+#calendarGrid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:6px;
+  text-align:center;
+  margin-bottom:16px;
+}
+
+.dayBtn{
+  position:relative;
+  border:1px solid #eee;
+  padding:8px;
+  border-radius:8px;
+  background:#fff;
+  cursor:pointer;
+  font-size:12px;
+}
+
+.today{
+  position:relative;
+}
+
+.today::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.12);
+  border-radius:8px;
+  pointer-events:none;
+}
+
+.entryDot{
+  position:absolute;
+  bottom:4px;
+  right:4px;
+  width:5px;
+  height:5px;
+  background:#000;
+  border-radius:50%;
+}
+
+#prevMonth,
+#nextMonth{
+  font-size:24px;
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:4px 8px;
+}
+
+.calendar-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
+}
+
+.buttons{
+  display:flex;
+  justify-content:flex-end;
+  gap:12px;
+  margin-bottom:16px;
+  position:relative;
+}
+
+  .appButton {
+  font-size: 14px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 2px solid #fff;
+  background: #f5eee8;
+  box-shadow: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  display: inline-block;
+  width: auto;
+  align-self: flex-start;
+  transition: background 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.appButton:active {
+  background: #e9dfd7;
+}
+
+  .journalPanel{
+  background:#ffffff;
+  margin:20px -20px 24px -20px;
+  padding:20px;
+  border-top-left-radius:36px;
+  border-top-right-radius:36px;
+  border-bottom-left-radius:36px;
+  border-bottom-right-radius:36px;
+  border:2px solid #ffffff;
+  box-shadow:0 8px 24px rgba(0,0,0,0.08);
+}
+
+  .journalHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
+}
+  
+.journalDate{
+  font-size:12px;
+  color:#5c6b5c;
+  margin-bottom:8px;
+}
+
+  .journalDownload{
+  font-size:12px;
+  color:#5c6b5c;
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:0;
+  font-family:'Inter',sans-serif;
+}
+
+  .tooltip{
+  font-size:12px;
+  color:#5c6b5c;
+  text-align:center;
+  margin-top:6px;
+  opacity:0;
+  transition:opacity 0.2s ease;
+}
+
+  .phaseDisplay{
+  font-size:18px;
+  color:#000;
+  margin-top:60px;
+  margin-bottom:4px;
+  text-align:center;
+}
+  
+/* PHASE COLORS */
+.menstrual{background:#f7d6d6;}
+.follicular{background:#e3f4e3;}
+.ovulation{background:#95bb97;}
+.luteal{background:#e3edf8;}
+.early-luteal{background:#e3edf8;}
+.late-luteal{background:#e3edf8;}
+.fertile{background:#e3f4e3;border:2px solid #95bb97;}
+
+  #settingsPanel{
+  display:none;
+}
+  
+  .settingsToggle{
+  font-size:14px;
+  background:#F8F3EF;
+  border:1.5px solid #F8F3EF;
+  border-radius:8px;
+  padding:8px 12px;
+  box-shadow:0 2px 4px rgba(0,0,0,0.10);
+  cursor:pointer;
+  margin-bottom:16px;
+  font-family:'Inter',sans-serif;
+  display:inline-block;
+  width:auto;
+  align-self:flex-start;
+}
+
+</style>
+  
+</head>
+
+<body>
+
+<div class="app">
+  <div class="card">
+
+    <h1 style="font-size:18px;font-weight:400;margin-bottom:6px;"></h1>
+    <button id="toggleSettings" class="appButton">Choose settings</button>
+
+    <!-- Cycle & Period Length Selectors -->
+     <div id="settingsPanel" class="selectors">
+      <div>
+        <label style="font-size:14px;">Cycle length</label><br>
+        <select id="cycleLength"></select>
+      </div>
+      <div>
+        <label style="font-size:14px;">Period length</label><br>
+        <select id="periodLength"></select>
+      </div>
+<div>
+  <label style="font-size:14px;">&nbsp;</label><br>
+  <button id="resetCycle" class="appButton">
+    Reset
+  </button>
+</div>
+       
+    </div>
+
+    <p id="todayPhase" class="phaseDisplay"></p>
+    
+    <!-- Guidance & Confirmation Messages -->
+    <p id="comment" style="font-size:16px;color:#000000;margin-bottom:12px;"></p>
+    <p id="confirmationMsg" style="font-size:14px;color:#2e7d32;margin-bottom:10px;height:18px;"></p>
+
+    <!-- Month Navigation -->
+    <div class="calendar-header">
+      <button id="prevMonth">‹</button>
+      <h3 id="calendarTitle"></h3>
+      <button id="nextMonth">›</button>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div id="calendarGrid"></div>
+
+    <!-- Buttons for Download & Today -->
+    <div class="buttons">
+          <button id="returnToday" style="font-size:14px;background:none;border:none;cursor:pointer;color:black;font-style:italic;">Today</button>
+    </div>
+
+       <!-- Current Date & Journal -->
+  <div class="journalPanel">
+
+<div class="journalHeader">
+  <p id="currentDate" class="journalDate"></p>
+  <button id="downloadEntries" class="journalDownload" aria-label="Download reflections">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
+       xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M5 21h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+</button>
+</div>
+
+      <p id="downloadTooltip" class="tooltip"></p>
+    
+<textarea id="journalTextarea" placeholder="Daily reflection…"></textarea>
+
+</div>
+
+   </div>
+</div>
+
+<script>
+
+ 
+/* STORAGE */
+
+const STORAGE_KEY='cycle_journal_entries';
+let entries=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+
+let cycleLength=Number(localStorage.getItem('cycle_length')||28);
+let periodLength=Number(localStorage.getItem('period_length')||5);
+let lastPeriod=localStorage.getItem('last_period_start');
+
+
+  /* GUIDANCE SYSTEM */
+
+/* START OF CYCLE (days 1–8) */
+
+const guidanceStart = [
+"Energy low. Focus on rest, comfort, and gentle awareness.",
+"Continue resting and listening to your body’s needs.",
+"Energy may slowly begin returning. Move gently.",
+"Light clarity may appear. Keep the pace soft.",
+"Transition day. Notice energy beginning to rise again.",
+"Energy building. Good day for light planning.",
+"Curiosity and motivation may increase today.",
+"Mental clarity improving. Explore new ideas."
+];
+
+/* MIDDLE – FOLLICULAR */
+
+const guidanceFollicular = [
+"Creative thinking and openness may feel natural.",
+"Energy building steadily. Take small forward steps.",
+"Openness and curiosity may feel stronger.",
+"Motivation building. Move ideas forward.",
+"Social energy may begin increasing.",
+"Steady energy. A supportive day for starting tasks.",
+"Confidence building. Take meaningful action.",
+"Energy continues rising. Communication may feel easier."
+];
+
+/* OVULATION */
+
+const guidanceOvulation = [
+"Social and expressive energy may rise.",
+"Peak energy window. Connection may feel easier.",
+"Energy is strong. Channel it into meaningful action."
+];
+
+/* MIDDLE – LUTEAL */
+
+const guidanceLuteal = [
+"Focused productivity may feel natural today.",
+"Steady, grounded energy supports completion.",
+"Good day for organization and follow-through.",
+"Focus remains steady. Work through practical tasks.",
+"A good day to simplify your schedule.",
+"Pace yourself and notice changing needs.",
+"Gradually slow the pace if needed. Notice energy shifts.",
+"Emotional awareness may increase. Listen inward."
+];
+
+/* END OF CYCLE (last 7 days) */
+
+const guidanceEnd = [
+"Energy may begin to dip. Prioritize supportive routines.",
+"Sensitivity may rise. Protect your energy.",
+"A good day to simplify tasks and reduce pressure.",
+"Restorative activities may feel especially helpful.",
+"Prioritize rest and supportive routines.",
+"Slow down and prepare for a new cycle.",
+"Gentle reset. A new cycle may begin soon."
+];
+  
+/* DROPDOWNS */
+
+const cycleSelect=document.getElementById('cycleLength');
+for(let i=21;i<=38;i++){
+let opt=document.createElement('option');
+opt.value=i;
+opt.textContent=i;
+if(i===cycleLength)opt.selected=true;
+cycleSelect.appendChild(opt);
+}
+
+const periodSelect=document.getElementById('periodLength');
+for(let i=2;i<=8;i++){
+let opt=document.createElement('option');
+opt.value=i;
+opt.textContent=i;
+if(i===periodLength)opt.selected=true;
+periodSelect.appendChild(opt);
+}
+
+cycleSelect.onchange=()=>{
+cycleLength=Number(cycleSelect.value);
+localStorage.setItem('cycle_length',cycleLength);
+generateCalendar();
+};
+
+periodSelect.onchange=()=>{
+periodLength=Number(periodSelect.value);
+localStorage.setItem('period_length',periodLength);
+generateCalendar();
+};
+
+/* DATE STATE */
+
+let today=new Date();
+let currentDate=today.toISOString().split('T')[0];
+
+const textarea=document.getElementById('journalTextarea');
+
+  textarea.addEventListener('input',()=>{
+  entries[currentDate] = textarea.value;
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(entries));
+
+   /* auto expand */
+  textarea.style.height = "auto";
+  textarea.style.height = textarea.scrollHeight + "px";
+});
+  
+const currentDateEl=document.getElementById('currentDate');
+
+const downloadBtn = document.getElementById("downloadEntries");
+const tooltip = document.getElementById("downloadTooltip");
+
+let downloadPressTimer;
+let isLongPress = false;
+
+downloadBtn.addEventListener("pointerdown", () => {
+  isLongPress = false;
+
+  downloadPressTimer = setTimeout(() => {
+    isLongPress = true;
+
+    tooltip.textContent = "Download your reflections for the last 365 days";
+    tooltip.style.opacity = 1;
+
+    setTimeout(() => {
+      tooltip.style.opacity = 0;
+    }, 2500);
+
+  }, 600);
+});
+
+downloadBtn.addEventListener("pointerup", () => {
+  clearTimeout(downloadPressTimer);
+
+  if (!isLongPress) {
+    downloadBtn.click(); // keeps your existing download behavior
+  }
+});
+
+downloadBtn.addEventListener("pointerleave", () => {
+  clearTimeout(downloadPressTimer);
+});
+
+const toggleBtn = document.getElementById("toggleSettings");
+const settingsPanel = document.getElementById("settingsPanel");
+
+let settingsOpen = false;
+
+// check if user already has settings
+if(localStorage.getItem('cycle_length')){
+  toggleBtn.textContent = "Update settings";
+} else {
+  settingsPanel.style.display = "flex";
+}
+
+toggleBtn.onclick = () => {
+
+  settingsOpen = !settingsOpen;
+
+  if(settingsOpen){
+    settingsPanel.style.display = "flex";
+  } else {
+    settingsPanel.style.display = "none";
+    toggleBtn.textContent = "Update settings";
+  }
+};
+
+// when user changes values → auto close
+cycleSelect.onchange = () => {
+  cycleLength = Number(cycleSelect.value);
+  localStorage.setItem('cycle_length', cycleLength);
+  generateCalendar();
+
+  settingsPanel.style.display = "none";
+  toggleBtn.textContent = "Update settings";
+  settingsOpen = false;
+};
+
+periodSelect.onchange = () => {
+  periodLength = Number(periodSelect.value);
+  localStorage.setItem('period_length', periodLength);
+  generateCalendar();
+
+  settingsPanel.style.display = "none";
+  toggleBtn.textContent = "Update settings";
+  settingsOpen = false;
+};
+
+const resetBtn = document.getElementById("resetCycle");
+
+  resetBtn.onclick = () => {
+
+  // remove cycle tracking ONLY
+  localStorage.removeItem('last_period_start');
+  lastPeriod = null;
+
+  // 👉 OPEN settings again
+  settingsPanel.style.display = "flex";
+  settingsOpen = true;
+  toggleBtn.textContent = "Choose settings";
+
+  // clear phase + guidance
+  document.getElementById("todayPhase").textContent = "";
+  updateComment();
+
+  generateCalendar();
+
+  document.getElementById("confirmationMsg").textContent =
+    "Cycle has been reset. Please select the first day of your last period.";
+
+  setTimeout(()=>{
+    document.getElementById("confirmationMsg").textContent="";
+  },3000);
+};
+  
+/* CYCLE DAY */
+
+function getCycleDay(date){
+
+if(!lastPeriod)return null;
+
+let d=new Date(date);
+let start=new Date(lastPeriod);
+
+let diff=Math.floor((d-start)/86400000);
+
+if(diff<0)return null;
+
+return (diff % cycleLength)+1;
+
+}
+
+/* PHASE */
+
+function getPhase(day){
+
+if(day === null) return '';
+
+const ovulationDay = cycleLength - 14;
+const fertileStart = Math.max(1, ovulationDay - 5);
+const fertileEnd = Math.min(cycleLength, ovulationDay - 1);
+
+/* menstrual */
+  
+if(day <= periodLength) return 'menstrual';
+
+/* fertile window BEFORE ovulation */
+
+if(day >= fertileStart && day <= fertileEnd) return 'fertile';
+
+/* ovulation */
+
+if(day === ovulationDay) return 'ovulation';
+
+/* follicular */
+
+if(day > periodLength && day < ovulationDay) return 'follicular';
+
+/* luteal split */
+
+const lutealStart = ovulationDay + 1;
+const lutealMid = lutealStart + Math.floor((cycleLength - lutealStart + 1)/2);
+
+if(day >= lutealStart && day < lutealMid) return 'early-luteal';
+
+return 'late-luteal';
+
+}
+
+function getGuidance(day){
+
+if(!day) return "Long-press a day to mark the start of your last period.";
+
+const ovulationDay = cycleLength - 14;
+const startLength = guidanceStart.length;
+const endLength = guidanceEnd.length;
+
+/* START SECTION */
+
+if(day <= startLength){
+return guidanceStart[day-1];
+}
+
+/* END SECTION */
+
+if(day > cycleLength - endLength){
+return guidanceEnd[day - (cycleLength - endLength) - 1];
+}
+
+/* FOLLICULAR */
+
+if(day < ovulationDay){
+
+let dynamicStart = startLength + 1;
+let dynamicEnd = ovulationDay - 1;
+
+let index = Math.floor(
+((day - dynamicStart) /
+(dynamicEnd - dynamicStart + 1)) *
+guidanceFollicular.length
+);
+
+return guidanceFollicular[index];
+}
+
+/* OVULATION */
+
+if(day === ovulationDay){
+
+let index = Math.floor(Math.random()*guidanceOvulation.length);
+return guidanceOvulation[index];
+}
+
+/* LUTEAL */
+
+let dynamicStart = ovulationDay + 1;
+let dynamicEnd = cycleLength - endLength;
+
+let index = Math.floor(
+((day - dynamicStart) /
+(dynamicEnd - dynamicStart + 1)) *
+guidanceLuteal.length
+);
+
+return guidanceLuteal[index];
+
+}
+  
+function getTodayPhase(){
+
+let todayKey = today.toISOString().split('T')[0];
+let day = getCycleDay(todayKey);
+
+return getPhase(day);
+
+}
+  
+/* GUIDANCE */
+
+function updateComment(){
+
+let todayKey = today.toISOString().split('T')[0];
+let day = getCycleDay(todayKey);
+
+document.getElementById('comment').textContent =
+getGuidance(day);
+
+}
+
+function updateTodayPhase(){
+
+  const phase = getTodayPhase();
+
+  if(phase){
+    document.getElementById("todayPhase").innerHTML =
+      "<strong>Today’s phase:</strong> " +
+      phase.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+  } else {
+    document.getElementById("todayPhase").textContent = "";
+  }
+}
+
+
+  
+  
+
+/* JOURNAL */
+
+function updateDisplay(){
+
+const dayEntry = entries[currentDate] || "";
+
+const todayKey = today.toISOString().split('T')[0];
+
+textarea.value = dayEntry;
+
+// Only allow editing for today
+if(currentDate === todayKey){
+    textarea.removeAttribute('readonly');
+} else {
+    textarea.setAttribute('readonly', true);
+}
+currentDateEl.textContent=currentDate;
+
+updateComment();
+updateTodayPhase();
+
+textarea.style.height = "auto";
+textarea.style.height = textarea.scrollHeight + "px";
+
+}
+  
+/* CALENDAR */
+
+const calendarGrid=document.getElementById('calendarGrid');
+const calendarTitle=document.getElementById('calendarTitle');
+
+let calendarMonth=new Date(today.getFullYear(),today.getMonth(),1);
+
+function generateCalendar(){
+
+calendarGrid.innerHTML='';
+
+const year=calendarMonth.getFullYear();
+const month=calendarMonth.getMonth();
+
+calendarTitle.textContent=
+calendarMonth.toLocaleString('default',{month:'long',year:'numeric'});
+
+const startDay=new Date(year,month,1).getDay();
+const daysInMonth=new Date(year,month+1,0).getDate();
+
+['S','M','T','W','T','F','S'].forEach(d=>{
+let div=document.createElement('div');
+div.textContent=d;
+calendarGrid.appendChild(div);
+});
+
+for(let i=0;i<startDay;i++){
+calendarGrid.appendChild(document.createElement('div'));
+}
+
+for(let d=1;d<=daysInMonth;d++){
+
+const btn=document.createElement('button');
+btn.className='dayBtn';
+btn.textContent=d;
+
+const dateKey=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+
+let cycleDay=getCycleDay(dateKey);
+let phase=getPhase(cycleDay);
+
+if(phase)btn.classList.add(phase);
+
+if(dateKey===today.toISOString().split('T')[0])
+btn.classList.add('today');
+
+if(entries[dateKey] && entries[dateKey].length > 0){
+let dot=document.createElement('div');
+dot.className='entryDot';
+btn.appendChild(dot);
+}
+
+  /* TAP */
+  
+let pressTimer;
+let longPress=false;
+
+/* START PRESS */
+
+btn.addEventListener("pointerdown", () => {
+
+longPress=false;
+
+pressTimer=setTimeout(()=>{
+
+longPress=true;
+
+lastPeriod=dateKey;
+localStorage.setItem('last_period_start',dateKey);
+
+document.getElementById("confirmationMsg").textContent =
+"You've set " + dateKey + " as the first day of your last period.";
+
+setTimeout(()=>{
+document.getElementById("confirmationMsg").textContent="";
+},3000);
+
+generateCalendar();
+updateComment();
+updateTodayPhase();
+
+
+},700);
+
+});
+
+/* RELEASE PRESS */
+
+btn.addEventListener("pointerup", () => {
+
+clearTimeout(pressTimer);
+
+if(!longPress){
+currentDate=dateKey;
+updateDisplay();
+generateCalendar();
+}
+
+});
+
+/* CANCEL PRESS */
+
+btn.addEventListener("pointerleave", ()=>{
+clearTimeout(pressTimer);
+});
+calendarGrid.appendChild(btn);
+ }
+}
+
+    document.getElementById('downloadEntries').onclick = () => {
+    const lines = [];
+    const keys = Object.keys(entries).sort();
+
+    keys.forEach(dateKey => {
+        // Skip entries older than 365 days
+        const entryDate = new Date(dateKey);
+        const diffDays = Math.floor((today - entryDate)/86400000);
+        if(diffDays > 365) {
+            delete entries[dateKey];
+            return;
+        }
+
+        
+      const dayNum = getCycleDay(dateKey) || '-'; 
+      const phaseName = getPhase(dayNum) || '-'; 
+      const text = entries[dateKey]; 
+
+      lines.push(`${dateKey} | Phase: ${phaseName} | Cycle Day: ${dayNum}\n${text}\n`);
+       }); 
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+
+    const blob = new Blob([lines.join('\n')], {type: "text/plain"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'cycle_journal.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+};
+
+  
+/* MONTH NAV */
+
+document.getElementById('prevMonth').onclick=()=>{
+calendarMonth.setMonth(calendarMonth.getMonth()-1);
+generateCalendar();
+};
+
+document.getElementById('nextMonth').onclick=()=>{
+calendarMonth.setMonth(calendarMonth.getMonth()+1);
+generateCalendar();
+};
+
+  document.getElementById('returnToday').onclick = () => {
+    calendarMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    currentDate = today.toISOString().split('T')[0];
+    generateCalendar();
+    updateDisplay();
+    updateComment();
+    updateTodayPhase();
+};
+
+  /* SWIPE */
+  let startX = 0;
+
+calendarGrid.addEventListener('touchstart', e=>{
+startX = e.touches[0].clientX;
+});
+
+calendarGrid.addEventListener('touchend', e=>{
+
+let endX = e.changedTouches[0].clientX;
+let diff = endX - startX;
+
+if(diff > 70){
+calendarMonth.setMonth(calendarMonth.getMonth()-1);
+generateCalendar();
+}
+
+if(diff < -70){
+calendarMonth.setMonth(calendarMonth.getMonth()+1);
+generateCalendar();
+}
+
+});
+
+  
+/* INIT */
+  
+generateCalendar();
+updateDisplay();
+
+
+</script>
+
+</body>
+</html>
