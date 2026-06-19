@@ -570,6 +570,14 @@ const settingsPanel = document.getElementById("settingsPanel");
 
 let settingsOpen = false;
 
+  function setupComplete() {
+  return (
+    localStorage.getItem('cycle_length') &&
+    localStorage.getItem('period_length') &&
+    localStorage.getItem('last_period_start')
+  );
+}
+
 // check if user already has settings
 if (setupComplete()) {
   toggleBtn.textContent = "Update settings";
