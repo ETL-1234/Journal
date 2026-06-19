@@ -341,6 +341,42 @@ select:active {
 
 <script>
 
+/* ANALYTICS */
+const SUPABASE_URL = "https://tppyzexttkuvcobbbmaz.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_VZiTsc0JGVx6tVf2Zu-9uQ_-FwjGpQW";
+
+const APP_NAME = "ETL";
+const CONTENT_NAME = "Period Journal";
+
+async function track(eventType, metadata = {}) {
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/analytics_journal`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          Prefer: "return=minimal"
+        },
+        body: JSON.stringify({
+          app_name: APP_NAME,
+          title_name: CONTENT_NAME,
+          event_type: eventType,
+          metadata
+        })
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Analytics HTTP Error:", response.status, errorText);
+    }
+  } catch (err) {
+    console.error("Analytics network error:", err);
+  }
+}  
  
 /* STORAGE */
 
@@ -433,33 +469,65 @@ if(i===periodLength)opt.selected=true;
 periodSelect.appendChild(opt);
 }
 
-cycleSelect.onchange=()=>{
-cycleLength=Number(cycleSelect.value);
-localStorage.setItem('cycle_length',cycleLength);
-generateCalendar();
-};
-
-periodSelect.onchange=()=>{
-periodLength=Number(periodSelect.value);
-localStorage.setItem('period_length',periodLength);
-generateCalendar();
-};
-
 /* DATE STATE */
 
 let today=new Date();
 let currentDate=today.toISOString().split('T')[0];
 
+/* ANALYTICS */
+let hasTrackedEntryStart = false;
+let hasTrackedEntrySaved = false;
+let sessionStartTime = null;
+let lastWordCount = 0;
+/* ------- */
+  
 const textarea=document.getElementById('journalTextarea');
 
-  textarea.addEventListener('input',()=>{
-  entries[currentDate] = textarea.value;
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(entries));
+/* ANALYTICS */
+ textarea.addEventListener('input', () => {
 
-   /* auto expand */
+  if (!hasTrackedEntryStart) {
+    sessionStartTime = Date.now();
+
+    track("entry_started", {
+      content: CONTENT_NAME,
+      start_time: new Date().toISOString(),
+      phase: getPhase(getCycleDay(currentDate)),
+      cycle_day: getCycleDay(currentDate)
+    });
+
+    hasTrackedEntryStart = true;
+  }
+
+  entries[currentDate] = textarea.value;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+
+  const wordCount = textarea.value
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .length;
+
+  lastWordCount = wordCount;
+
+  // NEW
+  if (!hasTrackedEntrySaved && textarea.value.trim()) {
+
+    track("entry_saved", {
+      content: CONTENT_NAME,
+      date: currentDate,
+      word_count: wordCount,
+      phase: getPhase(getCycleDay(currentDate)),
+      cycle_day: getCycleDay(currentDate)
+    });
+
+    hasTrackedEntrySaved = true;
+  }
+
   textarea.style.height = "auto";
   textarea.style.height = textarea.scrollHeight + "px";
 });
+  
   
 const currentDateEl=document.getElementById('currentDate');
 
@@ -502,22 +570,36 @@ const settingsPanel = document.getElementById("settingsPanel");
 
 let settingsOpen = false;
 
+  function setupComplete() {
+  return (
+    localStorage.getItem('cycle_length') &&
+    localStorage.getItem('period_length') &&
+    localStorage.getItem('last_period_start')
+  );
+}
+
 // check if user already has settings
-if(localStorage.getItem('cycle_length')){
+if (setupComplete()) {
   toggleBtn.textContent = "Update settings";
+  settingsPanel.style.display = "none";
+  settingsOpen = false;
 } else {
+  toggleBtn.textContent = "Choose settings";
   settingsPanel.style.display = "flex";
+  settingsOpen = true;
 }
 
 toggleBtn.onclick = () => {
 
   settingsOpen = !settingsOpen;
 
-  if(settingsOpen){
-    settingsPanel.style.display = "flex";
-  } else {
-    settingsPanel.style.display = "none";
+  settingsPanel.style.display =
+    settingsOpen ? "flex" : "none";
+
+  if (setupComplete()) {
     toggleBtn.textContent = "Update settings";
+  } else {
+    toggleBtn.textContent = "Choose settings";
   }
 };
 
@@ -525,21 +607,25 @@ toggleBtn.onclick = () => {
 cycleSelect.onchange = () => {
   cycleLength = Number(cycleSelect.value);
   localStorage.setItem('cycle_length', cycleLength);
-  generateCalendar();
+// ANALYTICS
+  track("cycle_length_updated", {
+    content: CONTENT_NAME,
+    cycle_length: cycleLength
+  });
 
-  settingsPanel.style.display = "none";
-  toggleBtn.textContent = "Update settings";
-  settingsOpen = false;
+  generateCalendar();
 };
 
-periodSelect.onchange = () => {
+  periodSelect.onchange = () => {
   periodLength = Number(periodSelect.value);
   localStorage.setItem('period_length', periodLength);
-  generateCalendar();
+// ANALYTICS
+  track("period_length_updated", {
+    content: CONTENT_NAME,
+    period_length: periodLength
+  });
 
-  settingsPanel.style.display = "none";
-  toggleBtn.textContent = "Update settings";
-  settingsOpen = false;
+  generateCalendar();
 };
 
 const resetBtn = document.getElementById("resetCycle");
@@ -549,6 +635,10 @@ const resetBtn = document.getElementById("resetCycle");
   // remove cycle tracking ONLY
   localStorage.removeItem('last_period_start');
   lastPeriod = null;
+// ANALYTICS
+     track("cycle_reset", {
+    content: CONTENT_NAME
+  });
 
   // 👉 OPEN settings again
   settingsPanel.style.display = "flex";
@@ -811,13 +901,25 @@ longPress=false;
 
 pressTimer=setTimeout(()=>{
 
-longPress=true;
+  longPress=true;
 
-lastPeriod=dateKey;
-localStorage.setItem('last_period_start',dateKey);
+  lastPeriod=dateKey;
+  localStorage.setItem('last_period_start',dateKey);
 
-document.getElementById("confirmationMsg").textContent =
-"You've set " + dateKey + " as the first day of your last period.";
+  if (setupComplete()) {
+  settingsPanel.style.display = "none";
+  settingsOpen = false;
+  toggleBtn.textContent = "Update settings";
+}
+  
+  /* ANALYTICS */
+  track("period_start_set", {
+    content: CONTENT_NAME,
+    selected_date: dateKey
+  });
+
+  document.getElementById("confirmationMsg").textContent =
+    "You've set " + dateKey + " as the first day of your last period.";
 
 setTimeout(()=>{
 document.getElementById("confirmationMsg").textContent="";
@@ -839,9 +941,22 @@ btn.addEventListener("pointerup", () => {
 clearTimeout(pressTimer);
 
 if(!longPress){
-currentDate=dateKey;
-updateDisplay();
-generateCalendar();
+/* ANALYTICS */
+  track("entry_selected", {
+    content: CONTENT_NAME,
+    selected_date: dateKey,
+    has_entry: !!entries[dateKey],
+    phase: getPhase(getCycleDay(dateKey)),
+    cycle_day: getCycleDay(dateKey)
+  });
+
+  currentDate = dateKey;
+
+  hasTrackedEntryStart = false;
+  hasTrackedEntrySaved = false;
+
+  updateDisplay();
+  generateCalendar();
 }
 
 });
@@ -883,6 +998,14 @@ calendarGrid.appendChild(btn);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'cycle_journal.txt';
+      
+/* ANALYTICS */
+track("download", {
+  content: CONTENT_NAME,
+  total_entries: Object.keys(entries).length
+});
+
+      
     a.click();
     URL.revokeObjectURL(url);
 };
@@ -901,6 +1024,10 @@ generateCalendar();
 };
 
   document.getElementById('returnToday').onclick = () => {
+
+    hasTrackedEntryStart = false;
+    hasTrackedEntrySaved = false;
+    
     calendarMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     currentDate = today.toISOString().split('T')[0];
     generateCalendar();
@@ -933,6 +1060,26 @@ generateCalendar();
 
 });
 
+
+  /* ANALYTICS */
+window.addEventListener('beforeunload', () => {
+
+  if (!sessionStartTime) return;
+
+  const timeSpentSeconds = Math.floor(
+    (Date.now() - sessionStartTime) / 1000
+  );
+
+  track("completed", {
+    content: CONTENT_NAME,
+    time_spent_seconds: timeSpentSeconds,
+    word_count: lastWordCount,
+    session_type: "period_journal",
+    date: currentDate,
+    phase: getPhase(getCycleDay(currentDate)),
+    cycle_day: getCycleDay(currentDate)
+  });
+});
   
 /* INIT */
   
