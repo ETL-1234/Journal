@@ -891,13 +891,18 @@ longPress=false;
 
 pressTimer=setTimeout(()=>{
 
-longPress=true;
+  longPress=true;
 
-lastPeriod=dateKey;
-localStorage.setItem('last_period_start',dateKey);
+  lastPeriod=dateKey;
+  localStorage.setItem('last_period_start',dateKey);
+  /* ANALYTICS */
+  track("period_start_set", {
+    content: CONTENT_NAME,
+    selected_date: dateKey
+  });
 
-document.getElementById("confirmationMsg").textContent =
-"You've set " + dateKey + " as the first day of your last period.";
+  document.getElementById("confirmationMsg").textContent =
+    "You've set " + dateKey + " as the first day of your last period.";
 
 setTimeout(()=>{
 document.getElementById("confirmationMsg").textContent="";
