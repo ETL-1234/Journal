@@ -341,6 +341,42 @@ select:active {
 
 <script>
 
+/* ANALYTICS */
+const SUPABASE_URL = "https://tppyzexttkuvcobbbmaz.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_VZiTsc0JGVx6tVf2Zu-9uQ_-FwjGpQW";
+
+const APP_NAME = "ETL";
+const CONTENT_NAME = "Period Journal";
+
+async function track(eventType, metadata = {}) {
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/analytics_journal`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          Prefer: "return=minimal"
+        },
+        body: JSON.stringify({
+          app_name: APP_NAME,
+          title_name: CONTENT_NAME,
+          event_type: eventType,
+          metadata
+        })
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Analytics HTTP Error:", response.status, errorText);
+    }
+  } catch (err) {
+    console.error("Analytics network error:", err);
+  }
+}  
  
 /* STORAGE */
 
