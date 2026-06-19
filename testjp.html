@@ -610,6 +610,13 @@ cycleSelect.onchange = () => {
 periodSelect.onchange = () => {
   periodLength = Number(periodSelect.value);
   localStorage.setItem('period_length', periodLength);
+  
+// ANALYTICS
+   track("period_length_updated", {
+    content: CONTENT_NAME,
+    period_length: periodLength
+  });
+  
   generateCalendar();
 
   settingsPanel.style.display = "none";
