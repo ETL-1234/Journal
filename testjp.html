@@ -897,6 +897,13 @@ pressTimer=setTimeout(()=>{
 
   lastPeriod=dateKey;
   localStorage.setItem('last_period_start',dateKey);
+
+  if (setupComplete()) {
+  settingsPanel.style.display = "none";
+  settingsOpen = false;
+  toggleBtn.textContent = "Update settings";
+}
+  
   /* ANALYTICS */
   track("period_start_set", {
     content: CONTENT_NAME,
