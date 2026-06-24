@@ -372,8 +372,13 @@ let entries=JSON.parse(localStorage.getItem(STORAGE)||"{}");
 
 const textarea=document.getElementById("journal");
 
-if(entries[today]){
-textarea.value = entries[today].reflection || "";
+if (entries[today]) {
+  if (typeof entries[today] === "string") {
+    textarea.value = entries[today];
+  } else {
+    textarea.value =
+      entries[today].reflection || "";
+  }
 }
 
 textarea.style.height = "auto";
