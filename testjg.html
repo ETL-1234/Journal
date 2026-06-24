@@ -336,6 +336,19 @@ track("prompt_loaded", {
 
 loadPrompt();
 
+function refreshPrompt() {
+  loadPrompt();
+
+  const promptText =
+    document.getElementById("prompt").textContent;
+  
+/* ANALYTICS */
+  track("prompt_refreshed", {
+    content: CONTENT_NAME,
+    prompt_text: promptText
+  });
+}
+  
 /* IMAGE PAGE */
 
 function openImages(){
