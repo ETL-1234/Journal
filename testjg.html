@@ -390,19 +390,20 @@ window.location.href="https://etl-1234.github.io/Journal/jgi.html";
 
 /* JOURNAL STORAGE */
 
-const STORAGE="gratitude_journal";
+const STORAGE = "gratitude_journal";
 
-let entries=JSON.parse(localStorage.getItem(STORAGE)||"{}");
+let entries =
+JSON.parse(localStorage.getItem(STORAGE) || "{}");
 
-const textarea=document.getElementById("journal");
+if (!entries[today]) {
+entries[today] = [];
+}
 
-if (entries[today]) {
-  if (typeof entries[today] === "string") {
-    textarea.value = entries[today];
-  } else {
-    textarea.value =
-      entries[today].reflection || "";
-  }
+const textarea =
+document.getElementById("journal");
+
+const entriesContainer =
+document.getElementById("entriesContainer");
 }
 
 textarea.style.height = "auto";
