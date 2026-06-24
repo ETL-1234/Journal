@@ -297,6 +297,11 @@ img.src = savedImage;
 const today = new Date().toISOString().split('T')[0];
 document.getElementById("currentDate").textContent = today;
 
+  /* ANALYTICS */
+track("view", {
+  content: CONTENT_NAME
+});
+  
 /* PROMPT FETCH */
 
 async function loadPrompt(){
