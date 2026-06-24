@@ -150,7 +150,7 @@ font-size:14px;
 font-style:italic;
 color:#999;
 line-height:1.6;
-margin-bottom:2px;
+margin-bottom:0px;
 }
 
 .entryReflection{
@@ -451,30 +451,24 @@ const activePrompt =
 document.getElementById("activePrompt");
 
 
-  function renderEntries(){
+function renderEntries(){
 
-entriesContainer.innerHTML = "";
+  entriesContainer.innerHTML = "";
 
-(entries[today] || []).forEach(entry=>{
+  (entries[today] || []).forEach(entry=>{
 
-const block =
-document.createElement("div");
+    const block = document.createElement("div");
 
-block.className = "entryBlock";
+    block.className = "entryBlock";
 
-block.innerHTML = `
-<div class="entryPrompt">
-${entry.prompt}
-</div>
+    block.innerHTML = `
+      <div class="entryPrompt">${entry.prompt}</div>
+      <div class="entryReflection">${entry.reflection.trim()}</div>
+    `;
 
-<div class="entryReflection">
-${entry.reflection}
-</div>
-`;
+    entriesContainer.appendChild(block);
 
-entriesContainer.appendChild(block);
-
-});
+  });
 
 }
 
