@@ -451,30 +451,24 @@ const activePrompt =
 document.getElementById("activePrompt");
 
 
-  function renderEntries(){
+function renderEntries(){
 
-entriesContainer.innerHTML = "";
+  entriesContainer.innerHTML = "";
 
-(entries[today] || []).forEach(entry=>{
+  (entries[today] || []).forEach(entry=>{
 
-const block =
-document.createElement("div");
+    const block = document.createElement("div");
 
-block.className = "entryBlock";
+    block.className = "entryBlock";
 
-block.innerHTML = `
-<div class="entryPrompt">
-${entry.prompt}
-</div>
+    block.innerHTML = `
+      <div class="entryPrompt">${entry.prompt}</div>
+      <div class="entryReflection">${entry.reflection.trim()}</div>
+    `;
 
-block.innerHTML = `
-<div class="entryPrompt">${entry.prompt}</div>
-<div class="entryReflection">${entry.reflection.trim()}</div>
-`;
+    entriesContainer.appendChild(block);
 
-entriesContainer.appendChild(block);
-
-});
+  });
 
 }
 
