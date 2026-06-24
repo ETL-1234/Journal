@@ -141,6 +141,25 @@ background:transparent;
 overflow:hidden;     /* prevents internal scroll */
 }
 
+  .entryBlock{
+margin-bottom:32px;
+}
+
+.entryPrompt{
+font-size:14px;
+font-style:italic;
+color:#999;
+line-height:1.6;
+margin-bottom:10px;
+}
+
+.entryReflection{
+font-size:16px;
+line-height:1.8;
+color:#999;
+white-space:pre-wrap;
+}
+
 /* DOWNLOAD */
 
 .download{
@@ -203,7 +222,12 @@ Refresh Prompt
 
 <div id="currentDate" class="journalDate"></div>
 
-<textarea id="journal" placeholder="Daily gratitude reflection..."></textarea>
+<div id="entriesContainer"></div>
+
+<textarea
+id="journal"
+placeholder="Daily gratitude reflection..."
+></textarea>
 
 <div class="download" onclick="downloadJournal()">
   <svg viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
