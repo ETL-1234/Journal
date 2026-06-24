@@ -608,20 +608,18 @@ a.download="gratitude_journal.txt";
 a.click();
 
 /* ANALYTICS */
-  track("download", {
-  content: CONTENT_NAME,
-  const totalEntries =
+
+const totalEntries =
 Object.values(entries)
 .reduce(
   (sum, day) => sum + day.length,
   0
 );
 
-    track("download", {
+track("download", {
   content: CONTENT_NAME,
   total_entries: totalEntries
 });
-  
 
   
 URL.revokeObjectURL(url);
