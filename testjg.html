@@ -363,6 +363,26 @@ let currentPrompt = "";
 loadPrompt();
 
 async function refreshPrompt() {
+
+  if(
+entries[today].length &&
+entries[today][entries[today].length-1].active
+){
+
+entries[today][
+entries[today].length-1
+].active = false;
+
+localStorage.setItem(
+STORAGE,
+JSON.stringify(entries)
+);
+
+renderEntries();
+
+textarea.value = "";
+
+}
   await loadPrompt();
 
   const promptText =
