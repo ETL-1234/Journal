@@ -467,49 +467,99 @@ textarea.style.height = textarea.scrollHeight + "px";
 
 textarea.addEventListener("input",()=>{
 
-  /* ANALYTICS */
+  const text = textarea.value.trim();
+
   const promptText =
-  document.getElementById("prompt").textContent;
+    document.getElementById("prompt").textContent;
 
-if (!hasTrackedEntryStart) {
-  sessionStartTime = Date.now();
+  /* ENTRY START ANALYTICS */
 
-  track("entry_started", {
+  if (!hasTrackedEntryStart) {
+
+    sessionStartTime = Date.now();
+
+    track("entry_started", {
+      content: CONTENT_NAME,
+      start_time: new Date().toISOString(),
+      prompt_text: promptText
+    });
+
+    hasTrackedEntryStart = true;
+  }
+
+  /* EMPTY TEXT = REMOVE ACTIVE ENTRY */
+
+  if (text === "") {
+
+    if (
+      entries[today].length &&
+      entries[today][entries[today].length - 1].active
+    ) {
+
+      entries[today].pop();
+    }
+
+    localStorage.setItem(
+      STORAGE,
+      JSON.stringify(entries)
+    );
+
+    renderEntries();
+
+    return;
+  }
+
+  /* CREATE NEW ACTIVE ENTRY */
+
+  if (
+    !entries[today].length ||
+    !entries[today][entries[today].length - 1].active
+  ) {
+
+    entries[today].push({
+      timestamp: new Date().toISOString(),
+      prompt: currentPrompt,
+      reflection: text,
+      active: true
+    });
+
+  } else {
+
+    /* UPDATE EXISTING ACTIVE ENTRY */
+
+    entries[today][
+      entries[today].length - 1
+    ].reflection = text;
+  }
+
+  localStorage.setItem(
+    STORAGE,
+    JSON.stringify(entries)
+  );
+
+  /* SAVE ANALYTICS */
+
+  const wordCount = text
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .length;
+
+  lastWordCount = wordCount;
+
+  track("entry_saved", {
     content: CONTENT_NAME,
-    start_time: new Date().toISOString(),
-    prompt_text: promptText
+    date: today,
+    word_count: wordCount,
+    entry_length: text.length,
+    prompt_text: currentPrompt
   });
 
-  hasTrackedEntryStart = true;
-}
+  /* AUTO EXPAND */
 
-entries[today] = {
-prompt: promptText,
-reflection: textarea.value
-};
-
-localStorage.setItem(STORAGE,JSON.stringify(entries));
-
-  /* ANALYTICS */
-  const wordCount = textarea.value
-  .trim()
-  .split(/\s+/)
-  .filter(Boolean)
-  .length;
-
-lastWordCount = wordCount;
-
-track("entry_saved", {
-  content: CONTENT_NAME,
-  date: today,
-  word_count: wordCount,
-  entry_length: textarea.value.length,
-  prompt_text: promptText
-});
-
-/* auto expand */
-textarea.style.height = "auto";
-textarea.style.height = textarea.scrollHeight + "px";
+  textarea.style.height = "auto";
+  textarea.style.height =
+    textarea.scrollHeight + "px";
 
 });
 
