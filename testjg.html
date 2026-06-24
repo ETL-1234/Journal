@@ -487,6 +487,17 @@ textarea.addEventListener("input",()=>{
 
   const text = textarea.value.trim();
 
+  if(text){
+
+  activePrompt.style.display = "block";
+  activePrompt.textContent = currentPrompt;
+
+}else{
+
+  activePrompt.style.display = "none";
+
+}
+
   const promptText =
     document.getElementById("prompt").textContent;
 
