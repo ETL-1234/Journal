@@ -421,9 +421,14 @@ if (!entries[today]) {
 entries[today] = [];
 }
 
-  entries[today].forEach(entry=>{
-entry.active = false;
+ entries[today].forEach(entry=>{
+  entry.active = false;
 });
+
+localStorage.setItem(
+  STORAGE,
+  JSON.stringify(entries)
+);
   
 
 const textarea =
