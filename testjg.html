@@ -421,6 +421,11 @@ if (!entries[today]) {
 entries[today] = [];
 }
 
+  entries[today].forEach(entry=>{
+entry.active = false;
+});
+  
+
 const textarea =
 document.getElementById("journal");
 
