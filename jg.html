@@ -467,9 +467,9 @@ block.innerHTML = `
 ${entry.prompt}
 </div>
 
-<div class="entryReflection">
-${entry.reflection}
-</div>
+block.innerHTML = `
+<div class="entryPrompt">${entry.prompt}</div>
+<div class="entryReflection">${entry.reflection.trim()}</div>
 `;
 
 entriesContainer.appendChild(block);
