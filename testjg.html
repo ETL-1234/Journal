@@ -336,8 +336,8 @@ track("prompt_loaded", {
 
 loadPrompt();
 
-function refreshPrompt() {
-  loadPrompt();
+async function refreshPrompt() {
+  await loadPrompt();
 
   const promptText =
     document.getElementById("prompt").textContent;
@@ -348,6 +348,7 @@ function refreshPrompt() {
     prompt_text: promptText
   });
 }
+  
   
 /* IMAGE PAGE */
 
