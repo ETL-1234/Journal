@@ -406,6 +406,35 @@ const entriesContainer =
 document.getElementById("entriesContainer");
 }
 
+  function renderEntries(){
+
+entriesContainer.innerHTML = "";
+
+(entries[today] || []).forEach(entry=>{
+
+const block =
+document.createElement("div");
+
+block.className = "entryBlock";
+
+block.innerHTML = `
+<div class="entryPrompt">
+${entry.prompt}
+</div>
+
+<div class="entryReflection">
+${entry.reflection}
+</div>
+`;
+
+entriesContainer.appendChild(block);
+
+});
+
+}
+
+  renderEntries();
+  
 textarea.style.height = "auto";
 textarea.style.height = textarea.scrollHeight + "px";
 
