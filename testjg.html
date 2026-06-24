@@ -380,6 +380,22 @@ textarea.style.height = textarea.scrollHeight + "px";
 
 textarea.addEventListener("input",()=>{
 
+  /* ANALYTICS */
+  const promptText =
+  document.getElementById("prompt").textContent;
+
+if (!hasTrackedEntryStart) {
+  sessionStartTime = Date.now();
+
+  track("entry_started", {
+    content: CONTENT_NAME,
+    start_time: new Date().toISOString(),
+    prompt_text: promptText
+  });
+
+  hasTrackedEntryStart = true;
+}
+
 const promptText = document.getElementById("prompt").textContent;
 
 entries[today] = {
