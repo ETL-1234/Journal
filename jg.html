@@ -141,6 +141,25 @@ background:transparent;
 overflow:hidden;     /* prevents internal scroll */
 }
 
+  .entryBlock{
+margin-bottom:32px;
+}
+
+.entryPrompt{
+font-size:14px;
+font-style:italic;
+color:#999;
+line-height:1.6;
+margin-bottom:2px;
+}
+
+.entryReflection{
+font-size:16px;
+line-height:1.8;
+color:#999;
+white-space:pre-wrap;
+}
+
 /* DOWNLOAD */
 
 .download{
@@ -186,7 +205,11 @@ overflow:hidden;     /* prevents internal scroll */
 
 <div id="prompt">Loading reflection...</div>
 
-<button class="refreshBtn" onclick="loadPrompt()">
+<button class="refreshBtn" onclick="refreshPrompt()">
+
+
+
+  
 <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
 <path d="M17.65 6.35A7.95 7.95 0 0012 4V1L7 6l5 5V7a5 5 0 11-5 5H5a7 7 0 107.75-6.93z"/>
 </svg>
@@ -199,7 +222,20 @@ Refresh Prompt
 
 <div id="currentDate" class="journalDate"></div>
 
-<textarea id="journal" placeholder="Daily gratitude reflection..."></textarea>
+
+<div id="entriesContainer"></div>
+
+<div
+id="activePrompt"
+class="entryPrompt"
+style="display:none;"
+></div>
+
+<textarea
+id="journal"
+  
+placeholder="Daily gratitude reflection..."
+></textarea>
 
 <div class="download" onclick="downloadJournal()">
   <svg viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -221,6 +257,51 @@ Refresh Prompt
 const SUPABASE_URL = "https://tppyzexttkuvcobbbmaz.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_VZiTsc0JGVx6tVf2Zu-9uQ_-FwjGpQW";
 
+/* ANALYTICS */
+
+const APP_NAME = "ETL";
+const CONTENT_NAME = "Gratitude Journal";
+
+async function track(eventType, metadata = {}) {
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/analytics_journal`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          Prefer: "return=minimal"
+        },
+        body: JSON.stringify({
+          app_name: APP_NAME,
+          title_name: CONTENT_NAME,
+          event_type: eventType,
+          metadata: metadata
+        })
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        "Analytics HTTP Error:",
+        response.status,
+        errorText
+      );
+    }
+  } catch (err) {
+    console.error("Analytics network error:", err);
+  }
+}
+
+/* SESSION TRACKING */
+
+let hasTrackedEntryStart = false;
+let sessionStartTime = null;
+let lastWordCount = 0;
+  
 
 /* BACKGROUND IMAGE */
 
@@ -252,6 +333,11 @@ img.src = savedImage;
 const today = new Date().toISOString().split('T')[0];
 document.getElementById("currentDate").textContent = today;
 
+  /* ANALYTICS */
+track("view", {
+  content: CONTENT_NAME
+});
+  
 /* PROMPT FETCH */
 
 async function loadPrompt(){
@@ -271,13 +357,64 @@ const random = data[Math.floor(Math.random()*data.length)];
 
 document.getElementById("prompt").textContent = random.gratitude;
 
-}
+  currentPrompt = random.gratitude;
 
+  /* ANALYTICS */
+track("prompt_loaded", {
+  content: CONTENT_NAME,
+  prompt_text: random.gratitude
+});
+
+  
+}
+let currentPrompt = "";
 loadPrompt();
 
+async function refreshPrompt() {
+
+  if(
+entries[today].length &&
+entries[today][entries[today].length-1].active
+){
+
+entries[today][
+entries[today].length-1
+].active = false;
+
+localStorage.setItem(
+STORAGE,
+JSON.stringify(entries)
+);
+
+renderEntries();
+
+textarea.value = "";
+
+textarea.style.height = "auto";
+
+}
+  await loadPrompt();
+
+  const promptText =
+    document.getElementById("prompt").textContent;
+  
+/* ANALYTICS */
+  track("prompt_refreshed", {
+    content: CONTENT_NAME,
+    prompt_text: promptText
+  });
+}
+  
+  
 /* IMAGE PAGE */
 
 function openImages(){
+
+  /* ANALYTICS */
+   track("background_opened", {
+    content: CONTENT_NAME
+  });
+  
 window.location.href="https://etl-1234.github.io/Journal/jgi.html";
 }
 
@@ -285,33 +422,173 @@ window.location.href="https://etl-1234.github.io/Journal/jgi.html";
 
 /* JOURNAL STORAGE */
 
-const STORAGE="gratitude_journal";
+const STORAGE = "gratitude_journal";
 
-let entries=JSON.parse(localStorage.getItem(STORAGE)||"{}");
+let entries =
+JSON.parse(localStorage.getItem(STORAGE) || "{}");
 
-const textarea=document.getElementById("journal");
-
-if(entries[today]){
-textarea.value = entries[today].reflection || "";
+if (!entries[today]) {
+entries[today] = [];
 }
 
+ entries[today].forEach(entry=>{
+  entry.active = false;
+});
+
+localStorage.setItem(
+  STORAGE,
+  JSON.stringify(entries)
+);
+  
+
+const textarea =
+document.getElementById("journal");
+
+const entriesContainer =
+document.getElementById("entriesContainer");
+
+const activePrompt =
+document.getElementById("activePrompt");
+
+
+  function renderEntries(){
+
+entriesContainer.innerHTML = "";
+
+(entries[today] || []).forEach(entry=>{
+
+const block =
+document.createElement("div");
+
+block.className = "entryBlock";
+
+block.innerHTML = `
+<div class="entryPrompt">
+${entry.prompt}
+</div>
+
+<div class="entryReflection">
+${entry.reflection}
+</div>
+`;
+
+entriesContainer.appendChild(block);
+
+});
+
+}
+
+  renderEntries();
+  
 textarea.style.height = "auto";
 textarea.style.height = textarea.scrollHeight + "px";
 
 textarea.addEventListener("input",()=>{
 
-const promptText = document.getElementById("prompt").textContent;
+  const text = textarea.value.trim();
 
-entries[today] = {
-prompt: promptText,
-reflection: textarea.value
-};
+  if(text){
 
-localStorage.setItem(STORAGE,JSON.stringify(entries));
+  activePrompt.style.display = "block";
+  activePrompt.textContent = currentPrompt;
 
-/* auto expand */
-textarea.style.height = "auto";
-textarea.style.height = textarea.scrollHeight + "px";
+}else{
+
+  activePrompt.style.display = "none";
+
+}
+
+  const promptText =
+    document.getElementById("prompt").textContent;
+
+  /* ENTRY START ANALYTICS */
+
+  if (!hasTrackedEntryStart) {
+
+    sessionStartTime = Date.now();
+
+    track("entry_started", {
+      content: CONTENT_NAME,
+      start_time: new Date().toISOString(),
+      prompt_text: promptText
+    });
+
+    hasTrackedEntryStart = true;
+  }
+
+  /* EMPTY TEXT = REMOVE ACTIVE ENTRY */
+
+  if (text === "") {
+
+    if (
+      entries[today].length &&
+      entries[today][entries[today].length - 1].active
+    ) {
+
+      entries[today].pop();
+    }
+
+    localStorage.setItem(
+      STORAGE,
+      JSON.stringify(entries)
+    );
+
+    renderEntries();
+
+    return;
+  }
+
+  /* CREATE NEW ACTIVE ENTRY */
+
+  if (
+    !entries[today].length ||
+    !entries[today][entries[today].length - 1].active
+  ) {
+
+    entries[today].push({
+      timestamp: new Date().toISOString(),
+      prompt: currentPrompt,
+      reflection: text,
+      active: true
+    });
+
+  } else {
+
+    /* UPDATE EXISTING ACTIVE ENTRY */
+
+    entries[today][
+      entries[today].length - 1
+    ].reflection = text;
+  }
+
+  localStorage.setItem(
+    STORAGE,
+    JSON.stringify(entries)
+  );
+
+  /* SAVE ANALYTICS */
+
+  const wordCount = text
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .length;
+
+  lastWordCount = wordCount;
+
+  track("entry_saved", {
+    content: CONTENT_NAME,
+    date: today,
+    word_count: wordCount,
+    entry_length: text.length,
+    prompt_text: currentPrompt
+  });
+
+  /* AUTO EXPAND */
+
+  textarea.style.height = "auto";
+  textarea.style.height =
+    textarea.scrollHeight + "px";
 
 });
 
@@ -319,25 +596,28 @@ textarea.style.height = textarea.scrollHeight + "px";
 
 function downloadJournal(){
 
-let text="";
+let text = "";
 
-Object.keys(entries).sort().forEach(date=>{
+Object.keys(entries)
+.sort()
+.forEach(date=>{
 
-const entry = entries[date];
+text += date + "\n\n";
 
-let promptText = "";
-let reflectionText = "";
+entries[date].forEach(entry=>{
 
-if(typeof entry === "string"){
-reflectionText = entry;
-}else{
-promptText = entry.prompt || "";
-reflectionText = entry.reflection || "";
-}
+const time =
+new Date(entry.timestamp)
+.toLocaleTimeString([],{
+hour:'2-digit',
+minute:'2-digit'
+});
 
-text += date + "\n";
-text += "Prompt: " + promptText + "\n";
-text += "Reflection: " + reflectionText + "\n\n";
+text += time + "\n\n";
+text += entry.prompt + "\n\n";
+text += entry.reflection + "\n\n";
+
+});
 
 });
 
@@ -349,10 +629,44 @@ a.href=url;
 a.download="gratitude_journal.txt";
 a.click();
 
+/* ANALYTICS */
+
+const totalEntries =
+Object.values(entries)
+.reduce(
+  (sum, day) => sum + day.length,
+  0
+);
+
+track("download", {
+  content: CONTENT_NAME,
+  total_entries: totalEntries
+});
+
+  
 URL.revokeObjectURL(url);
 
 }
+  
+/* ANALYTICS */
+window.addEventListener("beforeunload", () => {
 
+  if (!sessionStartTime) return;
+
+  const timeSpentSeconds = Math.floor(
+    (Date.now() - sessionStartTime) / 1000
+  );
+
+  track("completed", {
+    content: CONTENT_NAME,
+    time_spent_seconds: timeSpentSeconds,
+    word_count: lastWordCount,
+    session_type: "gratitude_journal",
+    date: today
+  });
+});
+
+  
 </script>
 
 </body>
