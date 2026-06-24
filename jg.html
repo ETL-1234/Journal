@@ -121,7 +121,8 @@ z-index:3;
   .journalContent{
   flex:1;
   overflow-y:auto;
-
+  display:flex;
+  flex-direction:column;
   scrollbar-width:none;
   -ms-overflow-style:none;
 }
@@ -129,6 +130,8 @@ z-index:3;
 .journalContent::-webkit-scrollbar{
   display:none;
 }
+
+
   
 /* DATE */
 
@@ -153,8 +156,16 @@ color:#000;
 line-height:1.6;
 background:transparent;
 overflow:hidden;     /* prevents internal scroll */
+min-height:120px;
+max-height:120px;
+overflow-y:auto;
+scrollbar-width:none;
 }
 
+  textarea::-webkit-scrollbar{
+  display:none;
+}
+  
   .entryBlock{
 margin-bottom:32px;
 }
