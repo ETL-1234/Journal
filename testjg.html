@@ -352,6 +352,12 @@ function refreshPrompt() {
 /* IMAGE PAGE */
 
 function openImages(){
+
+  /* ANALYTICS */
+   track("background_opened", {
+    content: CONTENT_NAME
+  });
+  
 window.location.href="https://etl-1234.github.io/Journal/jgi.html";
 }
 
