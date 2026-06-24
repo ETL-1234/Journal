@@ -321,6 +321,13 @@ const random = data[Math.floor(Math.random()*data.length)];
 
 document.getElementById("prompt").textContent = random.gratitude;
 
+  /* ANALYTICS */
+track("prompt_loaded", {
+  content: CONTENT_NAME,
+  prompt_text: random.gratitude
+});
+
+  
 }
 
 loadPrompt();
