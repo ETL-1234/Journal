@@ -405,6 +405,23 @@ reflection: textarea.value
 
 localStorage.setItem(STORAGE,JSON.stringify(entries));
 
+  /* ANALYTICS */
+  const wordCount = textarea.value
+  .trim()
+  .split(/\s+/)
+  .filter(Boolean)
+  .length;
+
+lastWordCount = wordCount;
+
+track("entry_saved", {
+  content: CONTENT_NAME,
+  date: today,
+  word_count: wordCount,
+  entry_length: textarea.value.length,
+  prompt_text: promptText
+});
+
 /* auto expand */
 textarea.style.height = "auto";
 textarea.style.height = textarea.scrollHeight + "px";
