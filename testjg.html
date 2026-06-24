@@ -517,25 +517,28 @@ textarea.style.height = textarea.scrollHeight + "px";
 
 function downloadJournal(){
 
-let text="";
+let text = "";
 
-Object.keys(entries).sort().forEach(date=>{
+Object.keys(entries)
+.sort()
+.forEach(date=>{
 
-const entry = entries[date];
+text += date + "\n\n";
 
-let promptText = "";
-let reflectionText = "";
+entries[date].forEach(entry=>{
 
-if(typeof entry === "string"){
-reflectionText = entry;
-}else{
-promptText = entry.prompt || "";
-reflectionText = entry.reflection || "";
-}
+const time =
+new Date(entry.timestamp)
+.toLocaleTimeString([],{
+hour:'2-digit',
+minute:'2-digit'
+});
 
-text += date + "\n";
-text += "Prompt: " + promptText + "\n";
-text += "Reflection: " + reflectionText + "\n\n";
+text += time + "\n\n";
+text += entry.prompt + "\n\n";
+text += entry.reflection + "\n\n";
+
+});
 
 });
 
