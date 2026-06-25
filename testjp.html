@@ -817,7 +817,19 @@ return 'late-luteal';
 
 function getGuidance(day){
 
-if(!day) return "Long-press a day to mark the start of your last period.";
+ const guidance = getGuidanceData(day);
+
+ if(!guidance){
+   return "Long-press a day to mark the start of your last period.";
+ }
+
+ return guidance.text;
+
+}
+
+function getGuidanceData(day){
+
+if(!day) return null;
 
 const ovulationDay = cycleLength - 14;
 const startLength = guidanceStart.length;
