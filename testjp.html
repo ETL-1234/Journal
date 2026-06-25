@@ -838,7 +838,7 @@ const endLength = guidanceEnd.length;
 /* START SECTION */
 
 if(day <= startLength){
-return guidanceStart[day-1].text;
+return guidanceStart[day-1];
 }
 
 /* END SECTION */
@@ -860,7 +860,7 @@ let index = Math.floor(
 guidanceFollicular.length
 );
 
-return guidanceFollicular[index].text;
+return guidanceFollicular[index];
 }
 
 /* OVULATION */
@@ -877,7 +877,7 @@ if(index === null){
   localStorage.setItem(storageKey,index);
 }
 
-return guidanceOvulation[Number(index)].text;
+return guidanceOvulation[Number(index)];
 
 }
 
@@ -892,7 +892,7 @@ let index = Math.floor(
 guidanceLuteal.length
 );
 
-return guidanceLuteal[index].text;
+return guidanceLuteal[index];
 
 }
   
