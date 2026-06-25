@@ -912,6 +912,15 @@ function updateComment(){
 let todayKey = today.toISOString().split('T')[0];
 let day = getCycleDay(todayKey);
 
+  const guidanceData = getGuidanceData(day);
+
+if(guidanceData){
+  localStorage.setItem(
+    'current_guidance_id',
+    guidanceData.id
+  );
+}
+
 document.getElementById('comment').textContent =
 getGuidance(day);
 
