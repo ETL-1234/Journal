@@ -393,60 +393,162 @@ let lastPeriod=localStorage.getItem('last_period_start');
 /* START OF CYCLE (days 1–8) */
 
 const guidanceStart = [
-"Energy low. Focus on rest, comfort, and gentle awareness.",
-"Continue resting and listening to your body’s needs.",
-"Energy may slowly begin returning. Move gently.",
-"Light clarity may appear. Keep the pace soft.",
-"Transition day. Notice energy beginning to rise again.",
-"Energy building. Good day for light planning.",
-"Curiosity and motivation may increase today.",
-"Mental clarity improving. Explore new ideas."
+{
+ id:"M1",
+ text:"Energy low. Focus on rest, comfort, and gentle awareness."
+  },
+{
+ id:"M2",
+ text:"Continue resting and listening to your body’s needs."
+  },
+{
+ id:"M3",
+ text:"Energy may slowly begin returning. Move gently."
+   },
+{
+ id:"M4",
+ text:"Light clarity may appear. Keep the pace soft."
+   },
+{
+ id:"M5",
+ text:"Transition day. Notice energy beginning to rise again."
+   },
+{
+ id:"M6",
+ text:"Energy building. Good day for light planning."
+   },
+{
+ id:"M7",
+ text:"Curiosity and motivation may increase today."
+   },
+{
+ id:"M8",
+ text:"Mental clarity improving. Explore new ideas."
+   }
 ];
 
 /* MIDDLE – FOLLICULAR */
 
 const guidanceFollicular = [
-"Creative thinking and openness may feel natural.",
-"Energy building steadily. Take small forward steps.",
-"Openness and curiosity may feel stronger.",
-"Motivation building. Move ideas forward.",
-"Social energy and need for connection may begin to increase.",
-"Steady energy. A supportive day for starting tasks.",
-"Confidence building. Take meaningful action.",
-"Energy continues rising. Communication may feel easier."
+{
+ id:"F1",
+ text:"Creative thinking and openness may feel natural."
+   },
+{
+ id:"F2",
+ text:"Energy building steadily. Take small forward steps."
+   },
+{
+ id:"F3",
+ text:"Openness and curiosity may feel stronger."
+   },
+{
+ id:"F4",
+ text:"Motivation building. Move ideas forward."
+   },
+{
+ id:"F5",
+ text:"Social energy and need for connection may begin to increase."
+   },
+{
+ id:"F6",
+ text:"Steady energy. A supportive day for starting tasks."
+   },
+{
+ id:"F7",
+ text:"Confidence building. Take meaningful action."
+   },
+{
+ id:"F8",
+ text:"Energy continues rising. Communication may feel easier."
+   }
 ];
 
 /* OVULATION */
 
 const guidanceOvulation = [
-"Social and expressive energy may rise.",
-"Peak energy window. Connection may feel easier.",
-"Energy is strong. Channel it into meaningful action."
+{
+ id:"O1",
+ text:"Social and expressive energy may rise."
+   },
+{
+ id:"O2,
+ text:"Peak energy window. Connection may feel easier."
+  },
+{
+ id:"O3",
+ text:"Energy is strong. Channel it into meaningful action."
+  }
 ];
 
 /* MIDDLE – LUTEAL */
 
 const guidanceLuteal = [
-"Focused productivity may feel natural today.",
-"Steady, grounded energy supports completion.",
-"Good day for organization and follow-through.",
-"Focus remains steady. Work through practical tasks.",
-"Leave breathing room between commitments. Simplify your schedule.",
-"Pace yourself and notice changing needs.",
-"Gradually slow down if needed. Notice energy shifts.",
-"Emotional awareness may increase. Listen inward."
+{
+ id:"L1",
+ text:"Focused productivity may feel natural today."
+   },
+{
+ id:"L2",
+ text:"Steady, grounded energy supports completion."
+   },
+{
+ id:"L3",
+ text:"Good day for organization and follow-through."
+   },
+{
+ id:"L4",
+ text:"Focus remains steady. Work through practical tasks."
+   },
+{
+ id:"L5",
+ text:"Leave breathing room between commitments. Simplify your schedule."
+   },
+{
+ id:"L6",
+ text:"Pace yourself and notice changing needs."
+   },
+{
+ id:"L7",
+ text:"Gradually slow down if needed. Notice energy shifts."
+   },
+{
+ id:"L8",
+ text:"Emotional awareness may increase. Listen inward."
+   }
 ];
 
 /* END OF CYCLE (last 7 days) */
 
 const guidanceEnd = [
-"Energy may begin to dip. Prioritize supportive routines.",
-"Sensitivity may rise. Protect your energy.",
-"A good day to simplify tasks and reduce pressure.",
-"Restorative activities and rest may feel especially helpful.",
-"Prioritize rest and supportive routines.",
-"Slow down and prepare for a new cycle.",
-"Gentle reset. A new cycle may begin soon."
+{
+ id:"E1",
+ text:"Energy may begin to dip. Prioritize supportive routines."
+   },
+{
+ id:"E2",
+ text:"Sensitivity may rise. Protect your energy."
+   },
+{
+ id:"E3",
+ text:"A good day to simplify tasks and reduce pressure."
+   },
+{
+ id:"E4",
+ text:"Restorative activities and rest may feel especially helpful."
+   },
+{
+ id:"E5",
+ text:"Prioritize rest and supportive routines."
+   },
+{
+ id:"E6",
+ text:"Slow down and prepare for a new cycle."
+   },
+{
+ id:"E7",
+ text:"Gentle reset. A new cycle may begin soon."
+   }
 ];
   
 /* DROPDOWNS */
