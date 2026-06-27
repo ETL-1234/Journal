@@ -388,17 +388,27 @@ async function track(eventType, metadata = {}) {
  
 /* STORAGE */
 
-async function loadGuidance(statementId){
+async function loadGuidanceCache(){
 
-    const versionKey = `guidance_version_${statementId}`;
+    const today = new Date().toISOString().split("T")[0];
 
-    let version = Number(
-        localStorage.getItem(versionKey) || 1
-    );
+    const lastUpdated =
+        localStorage.getItem(GUIDANCE_CACHE_DATE);
+
+    if(lastUpdated === today){
+
+        const cached =
+            localStorage.getItem(GUIDANCE_CACHE_KEY);
+
+        if(cached){
+            return JSON.parse(cached);
+        }
+
+    }
 
     const response = await fetch(
 
-        `${SUPABASE_URL}/rest/v1/phase_guidance?statement_id=eq.${statementId}&version=eq.${version}&active=eq.true`,
+        `${SUPABASE_URL}/rest/v1/phase_guidance?active=eq.true&select=*`,
 
         {
             headers: SUPABASE_HEADERS
@@ -406,13 +416,21 @@ async function loadGuidance(statementId){
 
     );
 
-    let rows = await response.json();
+    const rows = await response.json();
 
-    if(rows.length){
+    localStorage.setItem(
+        GUIDANCE_CACHE_KEY,
+        JSON.stringify(rows)
+    );
 
-        return rows[0];
+    localStorage.setItem(
+        GUIDANCE_CACHE_DATE,
+        today
+    );
 
-    }
+    return rows;
+
+}
 
     // version doesn't exist anymore
     // automatically wrap back to Version 1
