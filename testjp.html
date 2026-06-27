@@ -912,22 +912,15 @@ return getPhase(day);
   
 /* GUIDANCE */
 
-function updateComment(){
+async function updateComment(){
 
-let todayKey = today.toISOString().split('T')[0];
-let day = getCycleDay(todayKey);
+    let todayKey = today.toISOString().split("T")[0];
 
-  const guidanceData = getGuidanceData(day);
+    let day = getCycleDay(todayKey);
 
-if(guidanceData && guidanceData.id){
-  localStorage.setItem(
-    'current_guidance_id',
-    guidanceData.id
-  );
-}
+    const text = await getGuidanceFromSupabase(day);
 
-document.getElementById('comment').textContent =
-getGuidance(day);
+    document.getElementById("comment").textContent = text;
 
 }
 
