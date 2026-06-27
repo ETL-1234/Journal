@@ -935,6 +935,25 @@ guidanceLuteal.length
 return guidanceLuteal[index];
 
 }
+
+  async function getGuidanceFromSupabase(day){
+
+    const guidance = getGuidanceData(day);
+
+    if(!guidance)
+        return "Long-press a day to mark the start of your last period.";
+
+    localStorage.setItem(
+        "current_guidance_id",
+        guidance.id
+    );
+
+    const row = await loadGuidance(guidance.id);
+
+    return row.statement;
+
+}
+
   
 function getTodayPhase(){
 
