@@ -961,18 +961,43 @@ return guidanceLuteal[index];
 
     const guidance = getGuidanceData(day);
 
-    if(!guidance)
+    if(!guidance){
         return "Long-press a day to mark the start of your last period.";
+    }
 
     localStorage.setItem(
         "current_guidance_id",
         guidance.id
     );
 
-    const row = await loadGuidance(guidance.id);
+    const allGuidance =
+        await loadGuidanceCache();
 
-    return row.statement;
+    const versionKey =
+        `guidance_version_${guidance.id}`;
 
+    let version =
+        Number(localStorage.getItem(versionKey) || 1);
+
+    let row = allGuidance.find(r =>
+        r.statement_id === guidance.id &&
+        r.version === version
+    );
+
+    if(!row){
+
+        version = 1;
+
+        localStorage.setItem(versionKey,1);
+
+        row = allGuidance.find(r =>
+            r.statement_id === guidance.id &&
+            r.version === 1
+        );
+
+    }
+
+    return row ? row.statement : "";
 }
 
 
