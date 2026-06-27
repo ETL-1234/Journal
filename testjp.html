@@ -385,6 +385,41 @@ async function track(eventType, metadata = {}) {
  
 /* STORAGE */
 
+async function loadGuidance(statementId){
+
+    const versionKey = `guidance_version_${statementId}`;
+
+    let version = Number(
+        localStorage.getItem(versionKey) || 1
+    );
+
+    const response = await fetch(
+
+        `${SUPABASE_URL}/rest/v1/phase_guidance?statement_id=eq.${statementId}&version=eq.${version}&active=eq.true`,
+
+        {
+            headers: SUPABASE_HEADERS
+        }
+
+    );
+
+    let rows = await response.json();
+
+    if(rows.length){
+
+        return rows[0];
+
+    }
+
+    // version doesn't exist anymore
+    // automatically wrap back to Version 1
+
+    localStorage.setItem(versionKey,1);
+
+    return loadGuidance(statementId);
+
+}
+
 const STORAGE_KEY='cycle_journal_entries';
 let entries=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
 
