@@ -431,15 +431,7 @@ async function loadGuidanceCache(){
     return rows;
 
 }
-
-    // version doesn't exist anymore
-    // automatically wrap back to Version 1
-
-    localStorage.setItem(versionKey,1);
-
-    return loadGuidance(statementId);
-
-}
+  
 
 const STORAGE_KEY='cycle_journal_entries';
 let entries=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
