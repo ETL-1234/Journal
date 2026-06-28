@@ -973,7 +973,7 @@ return guidanceLuteal[index];
 
     let row = allGuidance.find(r =>
         r.statement_id === guidance.id &&
-        r.version === version
+        Number(r.version) === Number(version)
     );
 
     if(!row){
