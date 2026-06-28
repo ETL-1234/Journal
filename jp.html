@@ -1039,7 +1039,7 @@ async function advanceGuidanceVersion(statementId){
 
     const response = await fetch(
 
-        `${SUPABASE_URL}/rest/v1/phase_guidance?statement_id=eq.${statementId}&active=eq.true&image_file=eq.${imagecard}&order=version.asc`,
+        `${SUPABASE_URL}/rest/v1/phase_guidance?statement_id=eq.${statementId}&active=eq.true&order=version.asc`,
 
         {
             headers: SUPABASE_HEADERS
