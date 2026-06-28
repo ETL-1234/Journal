@@ -972,7 +972,7 @@ return guidanceLuteal[index];
         Number(localStorage.getItem(versionKey) || 1);
 
     let row = allGuidance.find(r =>
-        r.statement_id === guidance.id &&
+        r.statement_id.trim() === guidance.id.trim() &&
         Number(r.version) === Number(version)
     );
 
