@@ -345,6 +345,14 @@ select:active {
 const SUPABASE_URL = "https://tppyzexttkuvcobbbmaz.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_VZiTsc0JGVx6tVf2Zu-9uQ_-FwjGpQW";
 
+const SUPABASE_HEADERS = {
+    apikey: SUPABASE_ANON_KEY,
+    Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+};
+
+const GUIDANCE_CACHE_KEY = "guidance_cache";
+const GUIDANCE_CACHE_DATE = "guidance_cache_date";
+
 const APP_NAME = "ETL";
 const CONTENT_NAME = "Period Journal";
 
@@ -380,6 +388,65 @@ async function track(eventType, metadata = {}) {
  
 /* STORAGE */
 
+async function loadGuidanceCache(){
+
+    const today = new Date().toISOString().split("T")[0];
+
+    const lastUpdated =
+        localStorage.getItem(GUIDANCE_CACHE_DATE);
+
+    if(lastUpdated === today){
+
+        const cached =
+            localStorage.getItem(GUIDANCE_CACHE_KEY);
+
+        if(cached){
+            return JSON.parse(cached);
+        }
+
+    }
+
+    const response = await fetch(
+
+        `${SUPABASE_URL}/rest/v1/phase_guidance?active=eq.true&select=statement_id,version,statement`,
+
+        {
+            headers: SUPABASE_HEADERS
+        }
+
+    );
+
+   const rows = await response.json();
+
+  console.log("Downloaded guidance rows:", rows.length);
+
+if(Array.isArray(rows) && rows.length > 0){
+
+    localStorage.setItem(
+        GUIDANCE_CACHE_KEY,
+        JSON.stringify(rows)
+    );
+
+    localStorage.setItem(
+        GUIDANCE_CACHE_DATE,
+        today
+    );
+
+    return rows;
+
+}
+
+// If download failed or returned nothing,
+// keep using whatever cache we already have.
+
+const cached =
+    localStorage.getItem(GUIDANCE_CACHE_KEY);
+
+return cached ? JSON.parse(cached) : [];
+
+}
+  
+
 const STORAGE_KEY='cycle_journal_entries';
 let entries=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
 
@@ -393,60 +460,162 @@ let lastPeriod=localStorage.getItem('last_period_start');
 /* START OF CYCLE (days 1–8) */
 
 const guidanceStart = [
-"Energy low. Focus on rest, comfort, and gentle awareness.",
-"Continue resting and listening to your body’s needs.",
-"Energy may slowly begin returning. Move gently.",
-"Light clarity may appear. Keep the pace soft.",
-"Transition day. Notice energy beginning to rise again.",
-"Energy building. Good day for light planning.",
-"Curiosity and motivation may increase today.",
-"Mental clarity improving. Explore new ideas."
+{
+ id:"M1",
+ text:"Energy low. Focus on rest, comfort, and gentle awareness."
+  },
+{
+ id:"M2",
+ text:"Continue resting and listening to your body’s needs."
+  },
+{
+ id:"M3",
+ text:"Energy may slowly begin returning. Move gently."
+   },
+{
+ id:"M4",
+ text:"Light clarity may appear. Keep the pace soft."
+   },
+{
+ id:"M5",
+ text:"Transition day. Notice energy beginning to rise again."
+   },
+{
+ id:"M6",
+ text:"Energy building. Good day for light planning."
+   },
+{
+ id:"M7",
+ text:"Curiosity and motivation may increase today."
+   },
+{
+ id:"M8",
+ text:"Mental clarity improving. Explore new ideas."
+   }
 ];
 
 /* MIDDLE – FOLLICULAR */
 
 const guidanceFollicular = [
-"Creative thinking and openness may feel natural.",
-"Energy building steadily. Take small forward steps.",
-"Openness and curiosity may feel stronger.",
-"Motivation building. Move ideas forward.",
-"Social energy and need for connection may begin to increase.",
-"Steady energy. A supportive day for starting tasks.",
-"Confidence building. Take meaningful action.",
-"Energy continues rising. Communication may feel easier."
+{
+ id:"F1",
+ text:"Creative thinking and openness may feel natural."
+   },
+{
+ id:"F2",
+ text:"Energy building steadily. Take small forward steps."
+   },
+{
+ id:"F3",
+ text:"Openness and curiosity may feel stronger."
+   },
+{
+ id:"F4",
+ text:"Motivation building. Move ideas forward."
+   },
+{
+ id:"F5",
+ text:"Social energy and need for connection may begin to increase."
+   },
+{
+ id:"F6",
+ text:"Steady energy. A supportive day for starting tasks."
+   },
+{
+ id:"F7",
+ text:"Confidence building. Take meaningful action."
+   },
+{
+ id:"F8",
+ text:"Energy continues rising. Communication may feel easier."
+   }
 ];
 
 /* OVULATION */
 
 const guidanceOvulation = [
-"Social and expressive energy may rise.",
-"Peak energy window. Connection may feel easier.",
-"Energy is strong. Channel it into meaningful action."
+{
+ id:"O1",
+ text:"Social and expressive energy may rise."
+   },
+{
+ id:"O2",
+ text:"Peak energy window. Connection may feel easier."
+  },
+{
+ id:"O3",
+ text:"Energy is strong. Channel it into meaningful action."
+  }
 ];
 
 /* MIDDLE – LUTEAL */
 
 const guidanceLuteal = [
-"Focused productivity may feel natural today.",
-"Steady, grounded energy supports completion.",
-"Good day for organization and follow-through.",
-"Focus remains steady. Work through practical tasks.",
-"Leave breathing room between commitments. Simplify your schedule.",
-"Pace yourself and notice changing needs.",
-"Gradually slow down if needed. Notice energy shifts.",
-"Emotional awareness may increase. Listen inward."
+{
+ id:"L1",
+ text:"Focused productivity may feel natural today."
+   },
+{
+ id:"L2",
+ text:"Steady, grounded energy supports completion."
+   },
+{
+ id:"L3",
+ text:"Good day for organization and follow-through."
+   },
+{
+ id:"L4",
+ text:"Focus remains steady. Work through practical tasks."
+   },
+{
+ id:"L5",
+ text:"Leave breathing room between commitments. Simplify your schedule."
+   },
+{
+ id:"L6",
+ text:"Pace yourself and notice changing needs."
+   },
+{
+ id:"L7",
+ text:"Gradually slow down if needed. Notice energy shifts."
+   },
+{
+ id:"L8",
+ text:"Emotional awareness may increase. Listen inward."
+   }
 ];
 
 /* END OF CYCLE (last 7 days) */
 
 const guidanceEnd = [
-"Energy may begin to dip. Prioritize supportive routines.",
-"Sensitivity may rise. Protect your energy.",
-"A good day to simplify tasks and reduce pressure.",
-"Restorative activities and rest may feel especially helpful.",
-"Prioritize relaxing activities and supportive routines.",
-"Slow down and prepare for a new cycle.",
-"Gentle reset. A new cycle may begin soon."
+{
+ id:"E1",
+ text:"Energy may begin to dip. Prioritize supportive routines."
+   },
+{
+ id:"E2",
+ text:"Sensitivity may rise. Protect your energy."
+   },
+{
+ id:"E3",
+ text:"A good day to simplify tasks and reduce pressure."
+   },
+{
+ id:"E4",
+ text:"Restorative activities and rest may feel especially helpful."
+   },
+{
+ id:"E5",
+ text:"Prioritize relaxing activities and supportive routines."
+   },
+{
+ id:"E6",
+ text:"Slow down and prepare for a new cycle."
+   },
+{
+ id:"E7",
+ text:"Gentle reset. A new cycle may begin soon."
+   }
 ];
   
 /* DROPDOWNS */
@@ -589,18 +758,39 @@ if (setupComplete()) {
   settingsOpen = true;
 }
 
-toggleBtn.onclick = () => {
+toggleBtn.onclick = async () => {
 
-  settingsOpen = !settingsOpen;
+  // FIRST TIME SETUP
+  if (!setupComplete()) {
 
-  settingsPanel.style.display =
-    settingsOpen ? "flex" : "none";
+    settingsOpen = !settingsOpen;
+    settingsPanel.style.display =
+      settingsOpen ? "flex" : "none";
 
-  if (setupComplete()) {
-    toggleBtn.textContent = "Update settings";
-  } else {
     toggleBtn.textContent = "Choose settings";
+    return;
   }
+
+  // OPEN SETTINGS
+  if (!settingsOpen) {
+
+    settingsOpen = true;
+    settingsPanel.style.display = "flex";
+    toggleBtn.textContent = "Set settings";
+    return;
+
+  }
+
+  // SAVE SETTINGS
+
+  settingsOpen = false;
+  settingsPanel.style.display = "none";
+  toggleBtn.textContent = "Update settings";
+
+  generateCalendar();
+  await updateComment();
+  updateTodayPhase();
+
 };
 
 // when user changes values → auto close
@@ -612,7 +802,6 @@ cycleSelect.onchange = () => {
     content: CONTENT_NAME,
     cycle_length: cycleLength
   });
-
   generateCalendar();
 };
 
@@ -715,7 +904,19 @@ return 'late-luteal';
 
 function getGuidance(day){
 
-if(!day) return "Long-press a day to mark the start of your last period.";
+ const guidance = getGuidanceData(day);
+
+ if(!guidance){
+   return "Long-press a day to mark the start of your last period.";
+ }
+
+ return guidance.text;
+
+}
+
+function getGuidanceData(day){
+
+if(!day) return null;
 
 const ovulationDay = cycleLength - 14;
 const startLength = guidanceStart.length;
@@ -781,6 +982,84 @@ guidanceLuteal.length
 return guidanceLuteal[index];
 
 }
+
+  async function getGuidanceFromSupabase(day){
+
+    const guidance = getGuidanceData(day);
+
+    if(!guidance){
+        return "Long-press a day to mark the start of your last period.";
+    }
+
+    localStorage.setItem(
+        "current_guidance_id",
+        guidance.id
+    );
+
+    const allGuidance =
+        await loadGuidanceCache();
+
+    const versionKey =
+        `guidance_version_${guidance.id}`;
+
+    let version =
+        Number(localStorage.getItem(versionKey) || 1);
+
+    let row = allGuidance.find(r =>
+        r.statement_id.trim() === guidance.id.trim() &&
+        Number(r.version) === Number(version)
+    );
+
+    if(!row){
+
+        version = 1;
+
+        localStorage.setItem(versionKey,1);
+
+        row = allGuidance.find(r =>
+            r.statement_id === guidance.id &&
+            r.version === 1
+        );
+
+    }
+
+   return row
+    ? row.statement
+    : guidance.text;
+}
+
+
+async function advanceGuidanceVersion(statementId){
+
+    const versionKey = `guidance_version_${statementId}`;
+
+    let version = Number(
+        localStorage.getItem(versionKey) || 1
+    );
+
+    const response = await fetch(
+
+        `${SUPABASE_URL}/rest/v1/phase_guidance?statement_id=eq.${statementId}&active=eq.true&order=version.asc`,
+
+        {
+            headers: SUPABASE_HEADERS
+        }
+
+    );
+
+    const rows = await response.json();
+
+    if(rows.length===0)
+        return;
+
+    version++;
+
+    if(version > rows.length)
+        version = 1;
+
+    localStorage.setItem(versionKey,version);
+
+}
   
 function getTodayPhase(){
 
@@ -793,13 +1072,15 @@ return getPhase(day);
   
 /* GUIDANCE */
 
-function updateComment(){
+async function updateComment(){
 
-let todayKey = today.toISOString().split('T')[0];
-let day = getCycleDay(todayKey);
+    let todayKey = today.toISOString().split("T")[0];
 
-document.getElementById('comment').textContent =
-getGuidance(day);
+    let day = getCycleDay(todayKey);
+
+    const text = await getGuidanceFromSupabase(day);
+
+    document.getElementById("comment").textContent = text;
 
 }
 
