@@ -758,18 +758,39 @@ if (setupComplete()) {
   settingsOpen = true;
 }
 
-toggleBtn.onclick = () => {
+toggleBtn.onclick = async () => {
 
-  settingsOpen = !settingsOpen;
+  // FIRST TIME SETUP
+  if (!setupComplete()) {
 
-  settingsPanel.style.display =
-    settingsOpen ? "flex" : "none";
+    settingsOpen = !settingsOpen;
+    settingsPanel.style.display =
+      settingsOpen ? "flex" : "none";
 
-  if (setupComplete()) {
-    toggleBtn.textContent = "Update settings";
-  } else {
     toggleBtn.textContent = "Choose settings";
+    return;
   }
+
+  // OPEN SETTINGS
+  if (!settingsOpen) {
+
+    settingsOpen = true;
+    settingsPanel.style.display = "flex";
+    toggleBtn.textContent = "Set settings";
+    return;
+
+  }
+
+  // SAVE SETTINGS
+
+  settingsOpen = false;
+  settingsPanel.style.display = "none";
+  toggleBtn.textContent = "Update settings";
+
+  generateCalendar();
+  await updateComment();
+  updateTodayPhase();
+
 };
 
 // when user changes values → auto close
