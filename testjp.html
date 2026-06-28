@@ -418,6 +418,8 @@ async function loadGuidanceCache(){
 
    const rows = await response.json();
 
+  console.log("Downloaded guidance rows:", rows.length);
+
 if(Array.isArray(rows) && rows.length > 0){
 
     localStorage.setItem(
