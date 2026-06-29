@@ -14,9 +14,22 @@ html,body{margin:0;background:#fff;font-family:Inter,sans-serif;color:#000}
   
 #phase{font-size:16px;font-weight:600;margin-bottom:18px}
   
-img{width:100%;max-width:420px;border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+img{
+    display:block;
+    width:100%;
+    max-width:420px;
+    margin:0 auto;
+    border-radius:18px;
+    box-shadow:
+    0 6px 14px rgba(0,0,0,.12),
+    0 18px 40px rgba(0,0,0,.20);
+}
   
-#days{font-size:16px;margin-top:20px}
+#days{
+  font-size:16px;
+  margin-top:20px
+  font-style:italic;
+}
   
 </style>
 </head>
@@ -69,10 +82,38 @@ function daysLeft(day){
 }
   
 function render(){
- const id=localStorage.getItem("current_guidance_id");
+
+    const id =
+        localStorage.getItem("current_guidance_id");
+
+    const lastPeriod =
+    localStorage.getItem("last_period_start");
+
+    if(!lastPeriod){
+
+        document.getElementById("phase").textContent =
+            "Click to set up the period tracker";
+
+        document.getElementById("days").textContent =
+            "See daily guidance cards";
+
+        const img =
+            document.getElementById("card");
+
+        img.src =
+        "https://tppyzexttkuvcobbbmaz.supabase.co/storage/v1/object/public/phasecard/PH.png";
+
+        img.style.display = "block";
+
+        return;
+
+    }
+
+    const v =
+        Number(localStorage.getItem(
+            "guidance_version_"+id
+        )||1);
   
- if(!id)return;
- const v=Number(localStorage.getItem("guidance_version_"+id)||1);
  const cache=JSON.parse(localStorage.getItem(CACHE_KEY)||"[]");
  const row=cache.find(r=>String(r.statement_id).trim()===id && Number(r.version)===v);
   
