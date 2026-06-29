@@ -157,9 +157,44 @@ function render(){
   
 render();
 window.addEventListener("resize", render);
-    
-setInterval(render,1000);
 window.addEventListener("storage",render);
+    let lastState = "";
+
+function checkForUpdates(){
+
+    const state = JSON.stringify({
+
+        guidance:
+            localStorage.getItem("current_guidance_id"),
+
+        version:
+            localStorage.getItem(
+                "guidance_version_" +
+                localStorage.getItem("current_guidance_id")
+            ),
+
+        period:
+            localStorage.getItem("last_period_start"),
+
+        cycle:
+            localStorage.getItem("cycle_length"),
+
+        periodLength:
+            localStorage.getItem("period_length")
+
+    });
+
+    if(state !== lastState){
+
+        lastState = state;
+
+        render();
+
+    }
+
+}
+
+setInterval(checkForUpdates,750);
   
 </script>
 </body>
