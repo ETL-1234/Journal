@@ -6,5 +6,88 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
-
 <style>
+
+html,body{margin:0;background:#fff;font-family:Inter,sans-serif;color:#000}
+  
+.wrap{padding:24px;text-align:center}
+  
+#phase{font-size:16px;font-weight:600;margin-bottom:18px}
+  
+img{width:100%;max-width:420px;border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+  
+#days{font-size:16px;margin-top:20px}
+  
+</style>
+</head>
+<body>
+  
+<div class="wrap">
+<div id="phase"></div>
+<img id="card" style="display:none">
+<div id="days"></div>
+  
+</div>
+  
+<script>
+  
+const CACHE_KEY="guidance_cache";
+  
+function cycleDay(){
+ const lp=localStorage.getItem("last_period_start");
+  
+ if(!lp) return null;
+  
+ const cl=Number(localStorage.getItem("cycle_length")||28);
+ const d=Math.floor((new Date()-new Date(lp))/86400000);
+  
+ return d<0?null:(d%cl)+1;
+}
+  
+function phase(day){
+  
+ if(day==null)return "";
+ const cl=Number(localStorage.getItem("cycle_length")||28);
+ const pl=Number(localStorage.getItem("period_length")||5);
+ const ov=cl-14;
+ const mid=ov+1+Math.floor((cl-(ov+1)+1)/2);
+  
+ if(day<=pl)return "Menstrual phase";
+ if(day===ov)return "Ovulation";
+ if(day<ov)return "Follicular phase";
+ if(day<mid)return "Early luteal phase";
+  
+ return "Late luteal phase";
+}
+  
+function daysLeft(day){
+  
+ const cl=Number(localStorage.getItem("cycle_length")||28);
+ const left=cl-day;
+  
+ return left===1?"1 day to your next period":left+" days to your next period";
+}
+  
+function render(){
+ const id=localStorage.getItem("current_guidance_id");
+  
+ if(!id)return;
+ const v=Number(localStorage.getItem("guidance_version_"+id)||1);
+ const cache=JSON.parse(localStorage.getItem(CACHE_KEY)||"[]");
+ const row=cache.find(r=>String(r.statement_id).trim()===id && Number(r.version)===v);
+  
+ if(row){const img=document.getElementById("card");img.src=row.image_file;img.style.display="block";}
+ const cd=cycleDay();
+  
+ document.getElementById("phase").textContent=phase(cd);
+  
+ if(cd!=null)document.getElementById("days").textContent=daysLeft(cd);
+}
+  
+render();
+setInterval(render,1000);
+window.addEventListener("storage",render);
+  
+</script>
+</body>
+</html>
