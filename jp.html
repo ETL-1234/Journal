@@ -339,11 +339,6 @@ select:active {
    </div>
 </div>
 
-
-
-  <script src="https://etl-1234.github.io/Journal/jpengine.js"></script>
-
-
 <script>
 
 /* ANALYTICS */
@@ -1079,33 +1074,27 @@ return getPhase(day);
 
 async function updateComment(){
 
-    const guidance =
-        await GuidanceEngine.updateToday();
+    let todayKey = today.toISOString().split("T")[0];
 
-    document.getElementById("comment").textContent =
-        guidance
-            ? guidance.text
-            : "Long-press a day to mark the start of your last period.";
+    let day = getCycleDay(todayKey);
+
+    const text = await getGuidanceFromSupabase(day);
+
+    document.getElementById("comment").textContent = text;
 
 }
 
-async function updateTodayPhase(){
+function updateTodayPhase(){
 
-    const guidance =
-        await GuidanceEngine.updateToday();
+  const phase = getTodayPhase();
 
-    if(guidance){
-
-        document.getElementById("todayPhase").innerHTML =
-            "<strong>Today’s phase:</strong> " +
-            guidance.phaseTitle;
-
-    }else{
-
-        document.getElementById("todayPhase").textContent="";
-
-    }
-
+  if(phase){
+    document.getElementById("todayPhase").innerHTML =
+      "<strong>Today’s phase:</strong> " +
+      phase.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+  } else {
+    document.getElementById("todayPhase").textContent = "";
+  }
 }
 
 
@@ -1114,7 +1103,7 @@ async function updateTodayPhase(){
 
 /* JOURNAL */
 
-async function updateDisplay(){
+function updateDisplay(){
 
 const dayEntry = entries[currentDate] || "";
 
@@ -1257,7 +1246,7 @@ if(!longPress){
   hasTrackedEntryStart = false;
   hasTrackedEntrySaved = false;
 
-  await updateDisplay();
+  updateDisplay();
   generateCalendar();
 }
 
@@ -1333,7 +1322,7 @@ generateCalendar();
     calendarMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     currentDate = today.toISOString().split('T')[0];
     generateCalendar();
-    await updateDisplay();
+    updateDisplay();
     updateComment();
     updateTodayPhase();
 };
