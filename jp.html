@@ -1257,7 +1257,7 @@ if(!longPress){
   hasTrackedEntryStart = false;
   hasTrackedEntrySaved = false;
 
-  updateDisplay();
+  await updateDisplay();
   generateCalendar();
 }
 
@@ -1333,7 +1333,7 @@ generateCalendar();
     calendarMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     currentDate = today.toISOString().split('T')[0];
     generateCalendar();
-    updateDisplay();
+    await updateDisplay();
     updateComment();
     updateTodayPhase();
 };
