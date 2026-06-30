@@ -408,7 +408,7 @@ async function loadGuidanceCache(){
 
     const response = await fetch(
 
-        `${SUPABASE_URL}/rest/v1/phase_guidance?active=eq.true&select=statement_id,version,statement`,
+        `${SUPABASE_URL}/rest/v1/phase_guidance?active=eq.true&select=statement_id,version,statement,image_file`,
 
         {
             headers: SUPABASE_HEADERS
