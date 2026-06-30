@@ -113,10 +113,13 @@ function daysLeft(day){
  return left===1?"1 day to your next period":left+" days to your next period";
 }
   
-function render(){
+async function render(){
+
+    const guidance =
+        await GuidanceEngine.updateToday();
 
     const id =
-        localStorage.getItem("current_guidance_id");
+        guidance ? guidance.id : null;
 
     const lastPeriod =
     localStorage.getItem("last_period_start");
