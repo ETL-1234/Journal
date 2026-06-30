@@ -161,8 +161,8 @@ async function render(){
 }
   
 render();
-window.addEventListener("resize", render);
-window.addEventListener("storage",render);
+window.addEventListener("resize", () => render());
+window.addEventListener("storage", () => render());
     let lastState = "";
 
 function checkForUpdates(){
