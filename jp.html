@@ -1079,13 +1079,13 @@ return getPhase(day);
 
 async function updateComment(){
 
-    let todayKey = today.toISOString().split("T")[0];
+    const guidance =
+        await GuidanceEngine.updateToday();
 
-    let day = getCycleDay(todayKey);
-
-    const text = await getGuidanceFromSupabase(day);
-
-    document.getElementById("comment").textContent = text;
+    document.getElementById("comment").textContent =
+        guidance
+            ? guidance.text
+            : "Long-press a day to mark the start of your last period.";
 
 }
 
