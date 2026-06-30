@@ -1089,17 +1089,23 @@ async function updateComment(){
 
 }
 
-function updateTodayPhase(){
+async function updateTodayPhase(){
 
-  const phase = getTodayPhase();
+    const guidance =
+        await GuidanceEngine.updateToday();
 
-  if(phase){
-    document.getElementById("todayPhase").innerHTML =
-      "<strong>Today’s phase:</strong> " +
-      phase.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
-  } else {
-    document.getElementById("todayPhase").textContent = "";
-  }
+    if(guidance){
+
+        document.getElementById("todayPhase").innerHTML =
+            "<strong>Today’s phase:</strong> " +
+            guidance.phaseTitle;
+
+    }else{
+
+        document.getElementById("todayPhase").textContent="";
+
+    }
+
 }
 
 
