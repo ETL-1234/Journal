@@ -153,11 +153,15 @@ async function render(){
  const row=cache.find(r=>String(r.statement_id).trim()===id && Number(r.version)===v);
   
  if(row){const img=document.getElementById("card");img.src=row.image_file;img.style.display="block";}
- const cd=cycleDay();
-  
- document.getElementById("phase").textContent=phase(cd);
-  
- if(cd!=null)document.getElementById("days").textContent=daysLeft(cd);
+if(guidance){
+
+    document.getElementById("phase").textContent =
+        guidance.phaseTitle;
+
+    document.getElementById("days").textContent =
+        guidance.daysUntilPeriod;
+
+}
 }
   
 render();
