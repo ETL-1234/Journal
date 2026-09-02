@@ -46,9 +46,9 @@ font-weight:500;
 }
 
 .grid{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(110px,1fr));
-gap:10px;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
 }
 
 .grid img{
@@ -57,6 +57,12 @@ aspect-ratio:3/4;
 object-fit:cover;
 cursor:pointer;
 border-radius:10px;
+}
+
+  @media (min-width:600px){
+  .grid{
+    grid-template-columns:repeat(4,1fr);
+  }
 }
   
  
