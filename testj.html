@@ -955,7 +955,16 @@ addFooter();
     // SAVE PDF
     // ---------------------------------------------------------
 
-    doc.save('My_journal_entries_exhale_the_light.pdf');
+   const downloadDate = new Date();
+
+const year = downloadDate.getFullYear();
+const month = String(downloadDate.getMonth() + 1).padStart(2, '0');
+const day = String(downloadDate.getDate()).padStart(2, '0');
+
+const fileName =
+  `My_journal_entries_exhale_the_light_${year}_${month}_${day}.pdf`;
+
+doc.save(fileName);
 
 
     // Only move to the next cover AFTER
