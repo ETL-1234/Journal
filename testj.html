@@ -290,7 +290,7 @@ function showPage(id) {
 }
 
   // JOURNAL LOGIC
-  const STORAGE_KEY = 'journal_entries';
+  const STORAGE_KEY = 'My journal entries from exhale the light';
   let entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
   let today = new Date();
   let currentDate = today.toISOString().split('T')[0];
