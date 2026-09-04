@@ -667,60 +667,62 @@ function autoResize() {
     );
 
 
-    // ---------------------------------------------------------
-    // PAGE 2 — INTRO
-    // ---------------------------------------------------------
+ // ---------------------------------------------------------
+// PAGE 2 — INTRO
+// ---------------------------------------------------------
 
-    doc.addPage();
+doc.addPage();
 
-    doc.setTextColor(0, 0, 0);
+doc.setTextColor(0, 0, 0);
 
-    // Title
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(24);
+// Title
+doc.setFont('helvetica', 'bold');
+doc.setFontSize(24);
 
-    const title =
-      template.intro_title || '';
+const title =
+  template.intro_title || '';
 
-    const titleY = 85;
+const titleY = 85;
 
-    doc.text(
-      title,
-      pageWidth / 2,
-      titleY,
-      {
-        align: 'center'
-      }
-    );
+doc.text(
+  title,
+  pageWidth / 2,
+  titleY,
+  {
+    align: 'center'
+  }
+);
 
 
-    // Intro text
-    doc.setFontSize(11);
+// Intro text
+doc.setFont('helvetica', 'normal');
+doc.setFontSize(11);
 
-    const introText =
-      template.intro_text || '';
+const introText =
+  template.intro_text || '';
 
-    const introWidth =
-      pageWidth * 0.70;
+const introWidth =
+  pageWidth * 0.70;
 
-    const introLines =
-      doc.splitTextToSize(
-        introText,
-        introWidth
-      );
+const introLines =
+  doc.splitTextToSize(
+    introText,
+    introWidth
+  );
 
-    const introY =
-      titleY + 20;
+const introY =
+  titleY + 20;
 
-    doc.text(
-      introLines,
-      pageWidth / 2,
-      introY,
-      {
-        align: 'center',
-        lineHeightFactor: 1.6
-      }
-    );
+doc.text(
+  introLines,
+  pageWidth / 2,
+  introY,
+  {
+    align: 'center',
+    lineHeightFactor: 1.6
+  }
+);
+
 
 // Quick tip
 const quickTip =
