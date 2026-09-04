@@ -769,25 +769,24 @@ doc.addPage();
 y = topMargin;
 addFooter();
 
-    // Footer helper
-    function addFooter() {
+   function addFooter() {
 
-      if (!template.footer_text) return;
+  if (!template.footer_text) return;
 
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8);
-      doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(0, 0, 0);
 
-      doc.text(
-        template.footer_text,
-        pageWidth / 2,
-        pageHeight - 10,
-        {
-          align: 'center'
-        }
-      );
-
+  doc.text(
+    template.footer_text,
+    pageWidth / 2,
+    pageHeight - 12,
+    {
+      align: 'center'
     }
+  );
+
+}
 
 
     // New journal page helper
