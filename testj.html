@@ -839,33 +839,24 @@ function autoResize() {
     // SAVE PDF
     // ---------------------------------------------------------
 
+       // ANALYTICS downloads
+    track("download", {
+      content: CONTENT_NAME,
+      total_entries: Object.values(entries)
+        .reduce((sum, dayEntries) => sum + dayEntries.length, 0),
+      cover_number: selectedCover.order_by
+    });
+
     doc.save('journal_entries.pdf');
 
   } catch (error) {
-
-    console.error(
-      'Journal PDF download error:',
-      error
-    );
-
-    alert(
-      'Sorry, the journal could not be downloaded right now. Please try again.'
-    );
-
+    console.error('Journal PDF download error:', error);
+    alert('Sorry, the journal could not be downloaded right now. Please try again.');
   }
 
 });
     
-        // ANALYTICS downloads
-track("download", {
-  content: CONTENT_NAME,
-  total_entries: Object.values(entries)
-    .reduce((sum, dayEntries) => sum + dayEntries.length, 0)
-});
-  
-    link.click();
-  });
-
+    
 // ANALYTICS session completed
 window.addEventListener('beforeunload', () => {
   if (!sessionStartTime) return;
