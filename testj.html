@@ -795,6 +795,11 @@ function startJournalPage() {
 
   addFooter();
 
+  // Restore journal entry font after footer
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(11);
+  doc.setTextColor(0, 0, 0);
+
 }
 
 
