@@ -722,6 +722,39 @@ function autoResize() {
       }
     );
 
+// Quick tip
+const quickTip =
+  template.quick_tip || '';
+
+if (quickTip.trim()) {
+
+  const quickTipY =
+    introY +
+    (introLines.length * 5.5) +
+    10;
+
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(11);
+  doc.setTextColor(0, 0, 0);
+
+  const quickTipLines =
+    doc.splitTextToSize(
+      quickTip,
+      introWidth
+    );
+
+  doc.text(
+    quickTipLines,
+    pageWidth / 2,
+    quickTipY,
+    {
+      align: 'center',
+      lineHeightFactor: 1.6
+    }
+  );
+
+}
+
 
 // ---------------------------------------------------------
 // FOOTER — PAGE 2
