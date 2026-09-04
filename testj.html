@@ -744,32 +744,26 @@ function autoResize() {
 
     }
 
-
-    // ---------------------------------------------------------
-    // PAGE 3+ — JOURNAL ENTRIES
-    // ---------------------------------------------------------
-
-    const marginLeft = 20;
-    const marginRight = 20;
-    const topMargin = 25;
-    const bottomMargin = 22;
-
-    const contentWidth =
-      pageWidth -
-      marginLeft -
-      marginRight;
-
-    let y = topMargin;
-
-    // ---------------------------------------------------------
-// CREATE FIRST JOURNAL PAGE — PAGE 3
+// ---------------------------------------------------------
+// PAGE 3+ — JOURNAL ENTRIES
 // ---------------------------------------------------------
 
-doc.addPage();
-y = topMargin;
-addFooter();
+const marginLeft = 20;
+const marginRight = 20;
+const topMargin = 25;
+const bottomMargin = 22;
 
-   function addFooter() {
+const contentWidth =
+  pageWidth -
+  marginLeft -
+  marginRight;
+
+
+// ---------------------------------------------------------
+// FOOTER HELPER
+// ---------------------------------------------------------
+
+function addFooter() {
 
   if (!template.footer_text) return;
 
@@ -789,122 +783,149 @@ addFooter();
 }
 
 
-    // New journal page helper
-    function startJournalPage() {
+// ---------------------------------------------------------
+// NEW JOURNAL PAGE HELPER
+// ---------------------------------------------------------
 
-      doc.addPage();
+function startJournalPage() {
 
-      y = topMargin;
+  doc.addPage();
 
-      addFooter();
+  y = topMargin;
 
+  addFooter();
+
+}
+
+
+// ---------------------------------------------------------
+// CREATE FIRST JOURNAL PAGE — PAGE 3
+// ---------------------------------------------------------
+
+let y = topMargin;
+
+doc.addPage();
+
+y = topMargin;
+
+addFooter();
+
+
+// ---------------------------------------------------------
+// LOOP THROUGH ALL JOURNAL ENTRIES
+// ---------------------------------------------------------
+
+const sortedEntries =
+  Object.entries(entries)
+    .sort(([dateA], [dateB]) =>
+      dateA.localeCompare(dateB)
+    );
+
+
+for (const [date, dayEntries] of sortedEntries) {
+
+  for (const entry of dayEntries) {
+
+    // -----------------------------------------------------
+    // CHECK SPACE FOR DATE
+    // -----------------------------------------------------
+
+    if (
+      y >
+      pageHeight -
+      bottomMargin -
+      25
+    ) {
+      startJournalPage();
     }
 
 
-    // ---------------------------------------------------------
-    // LOOP THROUGH ALL JOURNAL ENTRIES
-    // ---------------------------------------------------------
+    // -----------------------------------------------------
+    // DATE + TIME — BOLD
+    // -----------------------------------------------------
 
-    const sortedEntries =
-      Object.entries(entries)
-        .sort(([dateA], [dateB]) =>
-          dateA.localeCompare(dateB)
-        );
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(0, 0, 0);
 
+    const time =
+      entry.timestamp
+        ? new Date(
+            entry.timestamp
+          ).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+          })
+        : '';
 
-    for (const [date, dayEntries] of sortedEntries) {
-
-      for (const entry of dayEntries) {
-
-        // Check space for date
-        if (
-          y >
-          pageHeight -
-          bottomMargin -
-          25
-        ) {
-          startJournalPage();
-        }
+    const dateHeading =
+      date +
+      (time ? ' · ' + time : '');
 
 
-        // DATE
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(11);
-        doc.setTextColor(0, 0, 0);
+    doc.text(
+      dateHeading,
+      marginLeft,
+      y
+    );
 
-        const time =
-          entry.timestamp
-            ? new Date(
-                entry.timestamp
-              ).toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit'
-              })
-            : '';
-
-        const dateHeading =
-          date +
-          (time ? ' · ' + time : '');
+    y += 8;
 
 
-        doc.text(
-          dateHeading,
-          marginLeft,
-          y
-        );
+    // -----------------------------------------------------
+    // ENTRY TEXT — NORMAL
+    // -----------------------------------------------------
 
-        y += 8;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
 
+    const entryLines =
+      doc.splitTextToSize(
+        entry.text || '',
+        contentWidth
+      );
 
-        // ENTRY TEXT
-        doc.setFontSize(11);
-
-        const entryLines =
-          doc.splitTextToSize(
-            entry.text || '',
-            contentWidth
-          );
-
-        const lineHeight = 5.5;
+    const lineHeight = 5.5;
 
 
-        for (const line of entryLines) {
+    for (const line of entryLines) {
 
-          if (
-            y >
-            pageHeight -
-            bottomMargin
-          ) {
-            startJournalPage();
-          }
-
-          doc.text(
-            line,
-            marginLeft,
-            y
-          );
-
-          y += lineHeight;
-
-        }
-
-
-        // Space between entries
-        y += 10;
-
+      if (
+        y >
+        pageHeight -
+        bottomMargin
+      ) {
+        startJournalPage();
       }
 
+      doc.text(
+        line,
+        marginLeft,
+        y
+      );
+
+      y += lineHeight;
+
     }
 
 
-    // ---------------------------------------------------------
-    // FOOTER — CURRENT PAGE
-    // ---------------------------------------------------------
+    // -----------------------------------------------------
+    // SPACE BETWEEN ENTRIES
+    // -----------------------------------------------------
 
-    addFooter();
+    y += 10;
+
+  }
+
+}
 
 
-    // ---------------------------------------------------------
+// ---------------------------------------------------------
+// FOOTER — CURRENT PAGE
+// ---------------------------------------------------------
+
+addFooter();
+        // ---------------------------------------------------------
     // ANALYTICS — DOWNLOAD
     // ---------------------------------------------------------
 
