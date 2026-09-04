@@ -725,24 +725,26 @@ function autoResize() {
     );
 
 
-    // ---------------------------------------------------------
-    // FOOTER — PAGE 2
-    // ---------------------------------------------------------
+// ---------------------------------------------------------
+// FOOTER — PAGE 2
+// ---------------------------------------------------------
 
-    if (template.footer_text) {
+if (template.footer_text) {
 
-      doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(0, 0, 0);
 
-      doc.text(
-        template.footer_text,
-        pageWidth / 2,
-        pageHeight - 12,
-        {
-          align: 'center'
-        }
-      );
-
+  doc.text(
+    template.footer_text,
+    pageWidth / 2,
+    pageHeight - 12,
+    {
+      align: 'center'
     }
+  );
+
+}
 
 // ---------------------------------------------------------
 // PAGE 3+ — JOURNAL ENTRIES
