@@ -488,10 +488,373 @@ function autoResize() {
   closeCalendarBtn.addEventListener('click', ()=>calendarOverlay.style.display='none');
   prevMonthBtn.addEventListener('click', ()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1); generateCalendar();});
   nextMonthBtn.addEventListener('click', ()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1); generateCalendar();});
-  downloadBtn.addEventListener('click', ()=>{
-    let content=''; Object.entries(entries).forEach(([date, dayEntries])=>{ dayEntries.forEach(e=>{content+=`${date} – ${new Date(e.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}\n${e.text}\n\n`;});});
-    const blob = new Blob([content], {type:'text/plain'});
-    const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='journal_entries.txt'; 
+
+  downloadBtn.addEventListener('click', async () => {
+
+  try {
+
+    // ---------------------------------------------------------
+    // 1. GET ACTIVE PAGE 2 TEMPLATE FROM SUPABASE
+    // ---------------------------------------------------------
+
+    const templateResponse = await fetch(
+      `${SUPABASE_URL}/rest/v1/journal_my_template?app_name=eq.${encodeURIComponent(APP_NAME)}&active=eq.true&limit=1`,
+      {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+        }
+      }
+    );
+
+    if (!templateResponse.ok) {
+      throw new Error("Could not load journal template.");
+    }
+
+    const templates = await templateResponse.json();
+
+    if (!templates.length) {
+      throw new Error("No active journal template found.");
+    }
+
+    const template = templates[0];
+
+    // ---------------------------------------------------------
+    // 2. GET ALL ACTIVE COVER IMAGES
+    //    ORDERED BY order_by
+    // ---------------------------------------------------------
+
+    const coverResponse = await fetch(
+      `${SUPABASE_URL}/rest/v1/journal_my_template_cover?active=eq.true&order=order_by.asc`,
+      {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+        }
+      }
+    );
+
+    if (!coverResponse.ok) {
+      throw new Error("Could not load journal covers.");
+    }
+
+    const covers = await coverResponse.json();
+
+    if (!covers.length) {
+      throw new Error("No active journal covers found.");
+    }
+
+    // ---------------------------------------------------------
+    // 3. CHOOSE NEXT COVER
+    //
+    // Each user/device gets its own rotation:
+    // 1 → 2 → 3 → ... → last → 1
+    // ---------------------------------------------------------
+
+    const COVER_ROTATION_KEY = 'journal_cover_rotation_index';
+
+    let coverIndex = parseInt(
+      localStorage.getItem(COVER_ROTATION_KEY) || '0',
+      10
+    );
+
+    // Safety check in case number of covers has changed
+    if (coverIndex >= covers.length || coverIndex < 0) {
+      coverIndex = 0;
+    }
+
+    const selectedCover = covers[coverIndex];
+
+    // Move to the next cover for the next download
+    const nextCoverIndex = (coverIndex + 1) % covers.length;
+
+    localStorage.setItem(
+      COVER_ROTATION_KEY,
+      nextCoverIndex.toString()
+    );
+
+    // ---------------------------------------------------------
+    // 4. LOAD COVER IMAGE
+    // ---------------------------------------------------------
+
+    async function imageUrlToDataURL(url) {
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error("Could not load cover image.");
+      }
+
+      const blob = await response.blob();
+
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    const coverData = await imageUrlToDataURL(
+      selectedCover.cover_image
+    );
+
+    // ---------------------------------------------------------
+    // 5. CREATE PDF
+    //
+    // A4 is very close to 8.5 x 11 and works well here.
+    // ---------------------------------------------------------
+
+    const { jsPDF } = window.jspdf;
+
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    // ---------------------------------------------------------
+    // PAGE 1 — COVER
+    // ---------------------------------------------------------
+
+    // Cover image fills the entire page.
+    // The image is 8.5 x 11, so we use the full A4 page.
+    doc.addImage(
+      coverData,
+      'JPEG',
+      0,
+      0,
+      pageWidth,
+      pageHeight
+    );
+
+    // ---------------------------------------------------------
+    // PAGE 2 — INTRO
+    // ---------------------------------------------------------
+
+    doc.addPage();
+
+    // Black text
+    doc.setTextColor(0, 0, 0);
+
+    // Title
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(24);
+
+    const title = template.intro_title || '';
+
+    const titleY = 85;
+
+    doc.text(
+      title,
+      pageWidth / 2,
+      titleY,
+      {
+        align: 'center'
+      }
+    );
+
+    // Intro text
+    doc.setFontSize(11);
+
+    const introText = template.intro_text || '';
+
+    const introWidth = pageWidth * 0.70;
+
+    const introLines = doc.splitTextToSize(
+      introText,
+      introWidth
+    );
+
+    const introY = titleY + 20;
+
+    doc.text(
+      introLines,
+      pageWidth / 2,
+      introY,
+      {
+        align: 'center',
+        lineHeightFactor: 1.6
+      }
+    );
+
+    // ---------------------------------------------------------
+    // FOOTER — PAGE 2
+    // ---------------------------------------------------------
+
+    if (template.footer_text) {
+
+      doc.setFontSize(8);
+
+      doc.text(
+        template.footer_text,
+        pageWidth / 2,
+        pageHeight - 12,
+        {
+          align: 'center'
+        }
+      );
+    }
+
+    // ---------------------------------------------------------
+    // PAGE 3+ — JOURNAL ENTRIES
+    // ---------------------------------------------------------
+
+    const marginLeft = 20;
+    const marginRight = 20;
+    const topMargin = 25;
+    const bottomMargin = 22;
+
+    const contentWidth = pageWidth - marginLeft - marginRight;
+
+    let y = topMargin;
+
+    // Helper for footer
+    function addFooter() {
+
+      if (!template.footer_text) return;
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(0, 0, 0);
+
+      doc.text(
+        template.footer_text,
+        pageWidth / 2,
+        pageHeight - 10,
+        {
+          align: 'center'
+        }
+      );
+    }
+
+    // Helper for a new journal page
+    function startJournalPage() {
+
+      doc.addPage();
+
+      y = topMargin;
+
+      addFooter();
+    }
+
+    // ---------------------------------------------------------
+    // LOOP THROUGH ALL JOURNAL ENTRIES
+    // ---------------------------------------------------------
+
+    const sortedEntries = Object.entries(entries)
+      .sort(([dateA], [dateB]) =>
+        dateA.localeCompare(dateB)
+      );
+
+    for (const [date, dayEntries] of sortedEntries) {
+
+      for (const entry of dayEntries) {
+
+        // Make sure we have enough room for the date heading
+        if (y > pageHeight - bottomMargin - 25) {
+          startJournalPage();
+        }
+
+        // DATE
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+
+        const time = entry.timestamp
+          ? new Date(entry.timestamp).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit'
+            })
+          : '';
+
+        const dateHeading =
+          date + (time ? ' · ' + time : '');
+
+        doc.text(
+          dateHeading,
+          marginLeft,
+          y
+        );
+
+        y += 8;
+
+        // ENTRY TEXT
+        doc.setFontSize(11);
+
+        const entryLines = doc.splitTextToSize(
+          entry.text || '',
+          contentWidth
+        );
+
+        const lineHeight = 5.5;
+
+        for (const line of entryLines) {
+
+          // Check if we need another page
+          if (y > pageHeight - bottomMargin) {
+            startJournalPage();
+          }
+
+          doc.text(
+            line,
+            marginLeft,
+            y
+          );
+
+          y += lineHeight;
+        }
+
+        // Space between entries
+        y += 10;
+      }
+    }
+
+    // ---------------------------------------------------------
+    // ADD FOOTER TO CURRENT JOURNAL PAGE
+    // ---------------------------------------------------------
+
+    addFooter();
+
+    // ---------------------------------------------------------
+    // ANALYTICS — DOWNLOAD
+    // ---------------------------------------------------------
+
+    track("download", {
+      content: CONTENT_NAME,
+      total_entries: Object.values(entries)
+        .reduce(
+          (sum, dayEntries) =>
+            sum + dayEntries.length,
+          0
+        ),
+      cover_number: selectedCover.order_by
+    });
+
+    // ---------------------------------------------------------
+    // SAVE PDF
+    // ---------------------------------------------------------
+
+    doc.save('journal_entries.pdf');
+
+  } catch (error) {
+
+    console.error(
+      'Journal PDF download error:',
+      error
+    );
+
+    alert(
+      'Sorry, the journal could not be downloaded right now. Please try again.'
+    );
+
+  }
+
+});
     
         // ANALYTICS downloads
 track("download", {
