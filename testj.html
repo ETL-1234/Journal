@@ -893,25 +893,30 @@ for (const [date, dayEntries] of sortedEntries) {
     const lineHeight = 5.5;
 
 
-    for (const line of entryLines) {
+  for (const line of entryLines) {
 
-      if (
-        y >
-        pageHeight -
-        bottomMargin
-      ) {
-        startJournalPage();
-      }
+  if (
+    y >
+    pageHeight -
+    bottomMargin
+  ) {
+    startJournalPage();
 
-      doc.text(
-        line,
-        marginLeft,
-        y
-      );
+    // Make absolutely sure continuation text stays at 11px
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    doc.setTextColor(0, 0, 0);
+  }
 
-      y += lineHeight;
+  doc.text(
+    line,
+    marginLeft,
+    y
+  );
 
-    }
+  y += lineHeight;
+
+}
 
 
     // -----------------------------------------------------
