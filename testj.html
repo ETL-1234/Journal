@@ -526,15 +526,15 @@ function autoResize() {
     // 2. GET ALL ACTIVE COVER IMAGES
     // ---------------------------------------------------------
 
-    const coverResponse = await fetch(
-      `${SUPABASE_URL}/rest/v1/journal_my_template_cover?active=eq.true&order=order_by.asc`,
-      {
-        headers: {
-          apikey: SUPABASE_ANON_KEY,
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`
-        }
-      }
-    );
+   const templateResponse = await fetch(
+  `${SUPABASE_URL}/rest/v1/journal_my_template?app_name=eq.${encodeURIComponent(APP_NAME)}&active=eq.true&type=eq.myjournal&limit=1`,
+  {
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+    }
+  }
+);
 
     if (!coverResponse.ok) {
       console.error('Could not load journal covers.');
