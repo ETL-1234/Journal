@@ -498,7 +498,7 @@ function autoResize() {
     // ---------------------------------------------------------
 
    const templateResponse = await fetch(
-  `${SUPABASE_URL}/rest/v1/journal_my_template?app_name=eq.${encodeURIComponent(APP_NAME)}&active=eq.true&limit=1`,
+  `${SUPABASE_URL}/rest/v1/journal_template?app_name=eq.${encodeURIComponent(APP_NAME)}&active=eq.true&limit=1`,
   {
     headers: {
       apikey: SUPABASE_ANON_KEY,
@@ -527,7 +527,7 @@ function autoResize() {
     // ---------------------------------------------------------
 
  const coverResponse = await fetch(
-  `${SUPABASE_URL}/rest/v1/journal_my_template_cover?active=eq.true&type=eq.myjournal&order=order_by.asc`,
+  `${SUPABASE_URL}/rest/v1/journal_template_cover?active=eq.true&type=eq.myjournal&order=order_by.asc`,
   {
     headers: {
       apikey: SUPABASE_ANON_KEY,
