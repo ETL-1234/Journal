@@ -109,7 +109,7 @@ z-index:3;
   border-top-left-radius:36px;
   border-top-right-radius:36px;
   box-shadow:
-     0 -12px 30px rgba(0,0,0,0.5);
+     0 -12px 30px rgba(0,0,0,0.5),
      inset 0 1px 0 rgba(255,255,255,0.6);
   display:flex;
   flex-direction:column;
@@ -281,7 +281,7 @@ Refresh Prompt
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
+  
 <script>
 
 /* SUPABASE */
@@ -613,59 +613,744 @@ textarea.addEventListener("input",()=>{
   });
 });
  
-/* DOWNLOAD */
 
-function downloadJournal(){
+/* DOWNLOAD — GRATITUDE JOURNAL PDF */
 
-let text = "";
+async function downloadJournal(){
 
-Object.keys(entries)
-.sort()
-.forEach(date=>{
+  try {
 
-text += date + "\n\n";
+    // ---------------------------------------------------------
+    // 1. GET ACTIVE GRATITUDE JOURNAL TEMPLATE FROM SUPABASE
+    // ---------------------------------------------------------
 
-entries[date].forEach(entry=>{
+    const templateResponse = await fetch(
+      `${SUPABASE_URL}/rest/v1/journal_template?app_name=eq.${encodeURIComponent(APP_NAME)}&active=eq.true&type=eq.gratitudejournal&limit=1`,
+      {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+        }
+      }
+    );
 
-const time =
-new Date(entry.timestamp)
-.toLocaleTimeString([],{
-hour:'2-digit',
-minute:'2-digit'
-});
+    if (!templateResponse.ok) {
+      console.error('Could not load gratitude journal template.');
+      return;
+    }
 
-text += time + "\n\n";
-text += entry.prompt + "\n\n";
-text += entry.reflection + "\n\n";
+    const templates = await templateResponse.json();
 
-});
+    if (!templates.length) {
+      console.error('No active gratitude journal template found.');
+      return;
+    }
 
-});
+    const template = templates[0];
 
-const blob = new Blob([text],{type:"text/plain"});
-const url = URL.createObjectURL(blob);
 
-const a = document.createElement("a");
-a.href=url;
-a.download="gratitude_journal.txt";
-a.click();
+    // ---------------------------------------------------------
+    // 2. GET ALL ACTIVE GRATITUDE JOURNAL COVERS
+    // ---------------------------------------------------------
 
-/* ANALYTICS */
+    const coverResponse = await fetch(
+      `${SUPABASE_URL}/rest/v1/journal_template_cover?active=eq.true&type=eq.gratitudejournal&order=order_by.asc`,
+      {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+        }
+      }
+    );
 
-const totalEntries =
-Object.values(entries)
-.reduce(
-  (sum, day) => sum + day.length,
-  0
-);
+    if (!coverResponse.ok) {
+      console.error('Could not load gratitude journal covers.');
+      return;
+    }
 
-track("download", {
-  content: CONTENT_NAME,
-  total_entries: totalEntries
-});
+    const covers = await coverResponse.json();
 
-  
-URL.revokeObjectURL(url);
+    if (!covers.length) {
+      console.error('No active gratitude journal covers found.');
+      return;
+    }
+
+
+    // ---------------------------------------------------------
+    // 3. CHOOSE NEXT GRATITUDE JOURNAL COVER
+    // ---------------------------------------------------------
+
+    // IMPORTANT:
+    // This is intentionally different from the regular journal
+    // cover rotation key.
+
+    const COVER_ROTATION_KEY =
+      'gratitude_journal_cover_rotation_index';
+
+    let coverIndex = parseInt(
+      localStorage.getItem(COVER_ROTATION_KEY) || '0',
+      10
+    );
+
+    if (
+      coverIndex >= covers.length ||
+      coverIndex < 0
+    ) {
+      coverIndex = 0;
+    }
+
+    const selectedCover = covers[coverIndex];
+
+    const nextCoverIndex =
+      (coverIndex + 1) % covers.length;
+
+
+    // ---------------------------------------------------------
+    // 4. LOAD COVER IMAGE
+    // ---------------------------------------------------------
+
+    async function imageUrlToJPEGDataURL(url) {
+
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error('Could not load gratitude journal cover image.');
+      }
+
+      const blob = await response.blob();
+
+      const objectURL =
+        URL.createObjectURL(blob);
+
+      try {
+
+        const img = new Image();
+
+        await new Promise((resolve, reject) => {
+
+          img.onload = resolve;
+          img.onerror = reject;
+
+          img.src = objectURL;
+
+        });
+
+        const canvas =
+          document.createElement('canvas');
+
+        canvas.width =
+          img.naturalWidth;
+
+        canvas.height =
+          img.naturalHeight;
+
+        const ctx =
+          canvas.getContext('2d');
+
+        ctx.drawImage(
+          img,
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
+
+        return canvas.toDataURL(
+          'image/jpeg',
+          0.95
+        );
+
+      } finally {
+
+        URL.revokeObjectURL(objectURL);
+
+      }
+
+    }
+
+
+    const coverData =
+      await imageUrlToJPEGDataURL(
+        selectedCover.cover_image
+      );
+
+
+    // ---------------------------------------------------------
+    // 5. CHECK jsPDF
+    // ---------------------------------------------------------
+
+    if (
+      !window.jspdf ||
+      !window.jspdf.jsPDF
+    ) {
+
+      console.error('jsPDF did not load.');
+      return;
+
+    }
+
+    const { jsPDF } =
+      window.jspdf;
+
+
+    // ---------------------------------------------------------
+    // 6. CREATE PDF
+    // ---------------------------------------------------------
+
+    const doc =
+      new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+    const pageWidth =
+      doc.internal.pageSize.getWidth();
+
+    const pageHeight =
+      doc.internal.pageSize.getHeight();
+
+
+    // ---------------------------------------------------------
+    // PAGE 1 — COVER
+    // ---------------------------------------------------------
+
+    doc.addImage(
+      coverData,
+      'JPEG',
+      0,
+      0,
+      pageWidth,
+      pageHeight
+    );
+
+
+    // ---------------------------------------------------------
+    // PAGE 2 — GRATITUDE JOURNAL INTRO
+    // ---------------------------------------------------------
+
+    doc.addPage();
+
+    doc.setTextColor(0, 0, 0);
+
+
+    // Title
+
+    doc.setFont(
+      'helvetica',
+      'bold'
+    );
+
+    doc.setFontSize(24);
+
+    const title =
+      template.intro_title || '';
+
+    const titleY = 85;
+
+    doc.text(
+      title,
+      pageWidth / 2,
+      titleY,
+      {
+        align: 'center'
+      }
+    );
+
+
+    // Intro text
+
+    doc.setFont(
+      'helvetica',
+      'normal'
+    );
+
+    doc.setFontSize(11);
+
+    const introText =
+      template.intro_text || '';
+
+    const introWidth =
+      pageWidth * 0.70;
+
+    const introLines =
+      doc.splitTextToSize(
+        introText,
+        introWidth
+      );
+
+    const introY =
+      titleY + 20;
+
+    doc.text(
+      introLines,
+      pageWidth / 2,
+      introY,
+      {
+        align: 'center',
+        lineHeightFactor: 1.6
+      }
+    );
+
+
+    // Quick tip
+
+    const quickTip =
+      template.quick_tip || '';
+
+    if (quickTip.trim()) {
+
+      const quickTipY =
+        introY +
+        (introLines.length * 5.5) +
+        40;
+
+      doc.setFont(
+        'helvetica',
+        'italic'
+      );
+
+      doc.setFontSize(11);
+
+      doc.setTextColor(
+        0,
+        0,
+        0
+      );
+
+      const quickTipLines =
+        doc.splitTextToSize(
+          quickTip,
+          introWidth
+        );
+
+      doc.text(
+        quickTipLines,
+        pageWidth / 2,
+        quickTipY,
+        {
+          align: 'center',
+          lineHeightFactor: 1.6
+        }
+      );
+
+    }
+
+
+    // ---------------------------------------------------------
+    // FOOTER — PAGE 2
+    // ---------------------------------------------------------
+
+    if (template.footer_text) {
+
+      doc.setFont(
+        'helvetica',
+        'normal'
+      );
+
+      doc.setFontSize(8);
+
+      doc.setTextColor(
+        0,
+        0,
+        0
+      );
+
+      doc.text(
+        template.footer_text,
+        pageWidth / 2,
+        pageHeight - 12,
+        {
+          align: 'center'
+        }
+      );
+
+    }
+
+
+    // ---------------------------------------------------------
+    // PAGE 3+ — GRATITUDE ENTRIES
+    // ---------------------------------------------------------
+
+    const marginLeft = 20;
+    const marginRight = 20;
+    const topMargin = 25;
+    const bottomMargin = 22;
+
+    const contentWidth =
+      pageWidth -
+      marginLeft -
+      marginRight;
+
+
+    // ---------------------------------------------------------
+    // FOOTER HELPER
+    // ---------------------------------------------------------
+
+    function addFooter() {
+
+      if (!template.footer_text) return;
+
+      doc.setFont(
+        'helvetica',
+        'normal'
+      );
+
+      doc.setFontSize(8);
+
+      doc.setTextColor(
+        0,
+        0,
+        0
+      );
+
+      doc.text(
+        template.footer_text,
+        pageWidth / 2,
+        pageHeight - 12,
+        {
+          align: 'center'
+        }
+      );
+
+    }
+
+
+    // ---------------------------------------------------------
+    // NEW JOURNAL PAGE HELPER
+    // ---------------------------------------------------------
+
+    function startJournalPage() {
+
+      doc.addPage();
+
+      y = topMargin;
+
+      addFooter();
+
+      // Restore entry font after footer
+
+      doc.setFont(
+        'helvetica',
+        'normal'
+      );
+
+      doc.setFontSize(11);
+
+      doc.setTextColor(
+        0,
+        0,
+        0
+      );
+
+    }
+
+
+    // ---------------------------------------------------------
+    // CREATE FIRST JOURNAL PAGE — PAGE 3
+    // ---------------------------------------------------------
+
+    let y = topMargin;
+
+    doc.addPage();
+
+    y = topMargin;
+
+    addFooter();
+
+
+    // ---------------------------------------------------------
+    // LOOP THROUGH ALL GRATITUDE ENTRIES
+    // ---------------------------------------------------------
+
+    const sortedEntries =
+      Object.entries(entries)
+        .sort(
+          ([dateA], [dateB]) =>
+            dateA.localeCompare(dateB)
+        );
+
+
+    for (
+      const [date, dayEntries]
+      of sortedEntries
+    ) {
+
+      for (
+        const entry
+        of dayEntries
+      ) {
+
+
+        // -----------------------------------------------------
+        // CHECK SPACE FOR DATE
+        // -----------------------------------------------------
+
+        if (
+          y >
+          pageHeight -
+          bottomMargin -
+          35
+        ) {
+
+          startJournalPage();
+
+        }
+
+
+        // -----------------------------------------------------
+        // DATE — BOLD
+        // -----------------------------------------------------
+
+        doc.setFont(
+          'helvetica',
+          'bold'
+        );
+
+        doc.setFontSize(11);
+
+        doc.setTextColor(
+          0,
+          0,
+          0
+        );
+
+        const time =
+          entry.timestamp
+            ? new Date(
+                entry.timestamp
+              ).toLocaleTimeString(
+                [],
+                {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }
+              )
+            : '';
+
+
+        const dateHeading =
+          date +
+          (
+            time
+              ? ' · ' + time
+              : ''
+          );
+
+
+        doc.text(
+          dateHeading,
+          marginLeft,
+          y
+        );
+
+        y += 8;
+
+
+        // -----------------------------------------------------
+        // GRATITUDE PROMPT
+        // -----------------------------------------------------
+
+        doc.setFont(
+          'helvetica',
+          'italic'
+        );
+
+        doc.setFontSize(10);
+
+        const promptText =
+          entry.prompt || '';
+
+        const promptLines =
+          doc.splitTextToSize(
+            promptText,
+            contentWidth
+          );
+
+        for (
+          const line
+          of promptLines
+        ) {
+
+          if (
+            y >
+            pageHeight -
+            bottomMargin
+          ) {
+
+            startJournalPage();
+
+            doc.setFont(
+              'helvetica',
+              'italic'
+            );
+
+            doc.setFontSize(10);
+
+          }
+
+          doc.text(
+            line,
+            marginLeft,
+            y
+          );
+
+          y += 5;
+
+        }
+
+
+        y += 3;
+
+
+        // -----------------------------------------------------
+        // GRATITUDE REFLECTION
+        // -----------------------------------------------------
+
+        doc.setFont(
+          'helvetica',
+          'normal'
+        );
+
+        doc.setFontSize(11);
+
+        const reflectionText =
+          entry.reflection || '';
+
+        const reflectionLines =
+          doc.splitTextToSize(
+            reflectionText,
+            contentWidth
+          );
+
+        const lineHeight = 5.5;
+
+
+        for (
+          const line
+          of reflectionLines
+        ) {
+
+          if (
+            y >
+            pageHeight -
+            bottomMargin
+          ) {
+
+            startJournalPage();
+
+            doc.setFont(
+              'helvetica',
+              'normal'
+            );
+
+            doc.setFontSize(11);
+
+            doc.setTextColor(
+              0,
+              0,
+              0
+            );
+
+          }
+
+          doc.text(
+            line,
+            marginLeft,
+            y
+          );
+
+          y += lineHeight;
+
+        }
+
+
+        // -----------------------------------------------------
+        // SPACE BETWEEN GRATITUDE ENTRIES
+        // -----------------------------------------------------
+
+        y += 10;
+
+      }
+
+    }
+
+
+    // ---------------------------------------------------------
+    // FOOTER — CURRENT PAGE
+    // ---------------------------------------------------------
+
+    addFooter();
+
+
+    // ---------------------------------------------------------
+    // ANALYTICS — DOWNLOAD
+    // ---------------------------------------------------------
+
+    const totalEntries =
+      Object.values(entries)
+        .reduce(
+          (sum, dayEntries) =>
+            sum + dayEntries.length,
+          0
+        );
+
+    track(
+      "download",
+      {
+        content: CONTENT_NAME,
+        total_entries: totalEntries,
+        cover_number: selectedCover.order_by
+      }
+    );
+
+
+    // ---------------------------------------------------------
+    // SAVE PDF
+    // ---------------------------------------------------------
+
+    const downloadDate =
+      new Date();
+
+    const year =
+      downloadDate.getFullYear();
+
+    const month =
+      String(
+        downloadDate.getMonth() + 1
+      ).padStart(2, '0');
+
+    const day =
+      String(
+        downloadDate.getDate()
+      ).padStart(2, '0');
+
+
+    const fileName =
+      `gratitude_journal_exhale_the_light_${year}_${month}_${day}.pdf`;
+
+
+    doc.save(fileName);
+
+
+    // ---------------------------------------------------------
+    // MOVE TO NEXT COVER
+    // ---------------------------------------------------------
+
+    localStorage.setItem(
+      COVER_ROTATION_KEY,
+      nextCoverIndex.toString()
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      'Gratitude Journal PDF download error:',
+      error
+    );
+
+  }
 
 }
   
