@@ -497,15 +497,15 @@ function autoResize() {
     // 1. GET ACTIVE PAGE 2 TEMPLATE FROM SUPABASE
     // ---------------------------------------------------------
 
-    const templateResponse = await fetch(
-      `${SUPABASE_URL}/rest/v1/journal_my_template?app_name=eq.${encodeURIComponent(APP_NAME)}&active=eq.true&limit=1`,
-      {
-        headers: {
-          apikey: SUPABASE_ANON_KEY,
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`
-        }
-      }
-    );
+   const templateResponse = await fetch(
+  `${SUPABASE_URL}/rest/v1/journal_my_template?app_name=eq.${encodeURIComponent(APP_NAME)}&active=eq.true&limit=1`,
+  {
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+    }
+  }
+);
 
     if (!templateResponse.ok) {
       console.error('Could not load journal template.');
