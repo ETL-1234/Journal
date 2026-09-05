@@ -526,8 +526,8 @@ function autoResize() {
     // 2. GET ALL ACTIVE COVER IMAGES
     // ---------------------------------------------------------
 
-   const templateResponse = await fetch(
-  `${SUPABASE_URL}/rest/v1/journal_my_template?app_name=eq.${encodeURIComponent(APP_NAME)}&active=eq.true&type=eq.myjournal&limit=1`,
+ const coverResponse = await fetch(
+  `${SUPABASE_URL}/rest/v1/journal_my_template_cover?active=eq.true&type=eq.myjournal&order=order_by.asc`,
   {
     headers: {
       apikey: SUPABASE_ANON_KEY,
