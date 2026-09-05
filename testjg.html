@@ -97,8 +97,9 @@ z-index:3;
 /* JOURNAL PANEL */
 
 .journalPanel{
+  height:40vh;
   min-height:320px;
-  flex:0 0 auto;
+  max-height:420px;
 
   background: rgba(255,255,255,1);  /* ↑ increase opacity slightly */
   backdrop-filter: blur(14px) saturate(140%);
@@ -115,6 +116,21 @@ z-index:3;
   z-index:3;
   margin-top:auto;
 }
+
+  .journalContent{
+  flex:1;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+
+.journalContent::-webkit-scrollbar{
+  display:none;
+}
+
+
   
 /* DATE */
 
@@ -139,8 +155,20 @@ color:#000;
 line-height:1.6;
 background:transparent;
 overflow:hidden;     /* prevents internal scroll */
+min-height:120px;
+max-height:120px;
+overflow-y:auto;
+scrollbar-width:none;
 }
 
+  textarea::-webkit-scrollbar{
+  display:none;
+}
+
+  #entriesContainer{
+  flex:1;
+}
+  
   .entryBlock{
 margin-bottom:32px;
 }
@@ -223,19 +251,22 @@ Refresh Prompt
 <div id="currentDate" class="journalDate"></div>
 
 
-<div id="entriesContainer"></div>
+<div class="journalContent">
 
-<div
-id="activePrompt"
-class="entryPrompt"
-style="display:none;"
-></div>
+  <div id="entriesContainer"></div>
 
-<textarea
-id="journal"
-  
-placeholder="Daily gratitude reflection..."
-></textarea>
+  <div
+  id="activePrompt"
+  class="entryPrompt"
+  style="display:none;"
+  ></div>
+
+  <textarea
+  id="journal"
+  placeholder="Daily gratitude reflection..."
+  ></textarea>
+
+</div>
 
 <div class="download" onclick="downloadJournal()">
   <svg viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -388,6 +419,9 @@ JSON.stringify(entries)
 
 renderEntries();
 
+journalContent.scrollTop =
+journalContent.scrollHeight;  
+
 textarea.value = "";
 
 textarea.style.height = "auto";
@@ -450,7 +484,9 @@ document.getElementById("entriesContainer");
 const activePrompt =
 document.getElementById("activePrompt");
 
-
+const journalContent =
+document.querySelector(".journalContent");
+  
 function renderEntries(){
 
   entriesContainer.innerHTML = "";
@@ -474,9 +510,6 @@ function renderEntries(){
 
   renderEntries();
   
-textarea.style.height = "auto";
-textarea.style.height = textarea.scrollHeight + "px";
-
 textarea.addEventListener("input",()=>{
 
   const text = textarea.value.trim();
@@ -495,7 +528,7 @@ textarea.addEventListener("input",()=>{
   const promptText =
     document.getElementById("prompt").textContent;
 
-  /* ENTRY START ANALYTICS */
+  /* ANALYTICS */
 
   if (!hasTrackedEntryStart) {
 
@@ -577,15 +610,8 @@ textarea.addEventListener("input",()=>{
     entry_length: text.length,
     prompt_text: currentPrompt
   });
-
-  /* AUTO EXPAND */
-
-  textarea.style.height = "auto";
-  textarea.style.height =
-    textarea.scrollHeight + "px";
-
 });
-
+ 
 /* DOWNLOAD */
 
 function downloadJournal(){
