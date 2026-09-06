@@ -1263,45 +1263,816 @@ calendarGrid.appendChild(btn);
  }
 }
 
-    document.getElementById('downloadEntries').onclick = () => {
-    const lines = [];
-    const keys = Object.keys(entries).sort();
+  /* DOWNLOAD — CYCLE JOURNAL PDF */
 
-    keys.forEach(dateKey => {
-        // Skip entries older than 365 days
-        const entryDate = new Date(dateKey);
-        const diffDays = Math.floor((today - entryDate)/86400000);
-        if(diffDays > 365) {
-            delete entries[dateKey];
-            return;
+async function downloadJournal(){
+
+  try {
+
+    // ---------------------------------------------------------
+    // 1. GET ACTIVE CYCLE JOURNAL TEMPLATE FROM SUPABASE
+    // ---------------------------------------------------------
+
+    const templateResponse = await fetch(
+      `${SUPABASE_URL}/rest/v1/journal_template?app_name=eq.${encodeURIComponent(APP_NAME)}&active=eq.true&type=eq.cyclejournal&limit=1`,
+      {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+        }
+      }
+    );
+
+    if (!templateResponse.ok) {
+
+      console.error(
+        'Could not load cycle journal template.'
+      );
+
+      return;
+    }
+
+    const templates =
+      await templateResponse.json();
+
+    if (!templates.length) {
+
+      console.error(
+        'No active cycle journal template found.'
+      );
+
+      return;
+    }
+
+    const template =
+      templates[0];
+
+
+    // ---------------------------------------------------------
+    // 2. GET ALL ACTIVE CYCLE JOURNAL COVERS
+    // ---------------------------------------------------------
+
+    const coverResponse = await fetch(
+      `${SUPABASE_URL}/rest/v1/journal_template_cover?active=eq.true&type=eq.cyclejournal&order=order_by.asc`,
+      {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+        }
+      }
+    );
+
+    if (!coverResponse.ok) {
+
+      console.error(
+        'Could not load cycle journal covers.'
+      );
+
+      return;
+    }
+
+    const covers =
+      await coverResponse.json();
+
+    if (!covers.length) {
+
+      console.error(
+        'No active cycle journal covers found.'
+      );
+
+      return;
+    }
+
+
+    // ---------------------------------------------------------
+    // 3. CHOOSE NEXT CYCLE JOURNAL COVER
+    // ---------------------------------------------------------
+
+    // Separate rotation key so this journal
+    // has its own cover sequence.
+
+    const COVER_ROTATION_KEY =
+      'cycle_journal_cover_rotation_index';
+
+    let coverIndex =
+      parseInt(
+        localStorage.getItem(
+          COVER_ROTATION_KEY
+        ) || '0',
+        10
+      );
+
+    if (
+      coverIndex >= covers.length ||
+      coverIndex < 0
+    ) {
+
+      coverIndex = 0;
+
+    }
+
+    const selectedCover =
+      covers[coverIndex];
+
+    const nextCoverIndex =
+      (coverIndex + 1) %
+      covers.length;
+
+
+    // ---------------------------------------------------------
+    // 4. LOAD COVER IMAGE
+    // ---------------------------------------------------------
+
+    async function imageUrlToJPEGDataURL(url) {
+
+      const response =
+        await fetch(url);
+
+      if (!response.ok) {
+
+        throw new Error(
+          'Could not load cycle journal cover image.'
+        );
+
+      }
+
+      const blob =
+        await response.blob();
+
+      const objectURL =
+        URL.createObjectURL(blob);
+
+      try {
+
+        const img =
+          new Image();
+
+        await new Promise(
+          (resolve, reject) => {
+
+            img.onload = resolve;
+            img.onerror = reject;
+
+            img.src = objectURL;
+
+          }
+        );
+
+        const canvas =
+          document.createElement(
+            'canvas'
+          );
+
+        canvas.width =
+          img.naturalWidth;
+
+        canvas.height =
+          img.naturalHeight;
+
+        const ctx =
+          canvas.getContext('2d');
+
+        ctx.drawImage(
+          img,
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
+
+        return canvas.toDataURL(
+          'image/jpeg',
+          0.95
+        );
+
+      } finally {
+
+        URL.revokeObjectURL(
+          objectURL
+        );
+
+      }
+
+    }
+
+
+    const coverData =
+      await imageUrlToJPEGDataURL(
+        selectedCover.cover_image
+      );
+
+
+    // ---------------------------------------------------------
+    // 5. CHECK jsPDF
+    // ---------------------------------------------------------
+
+    if (
+      !window.jspdf ||
+      !window.jspdf.jsPDF
+    ) {
+
+      console.error(
+        'jsPDF did not load.'
+      );
+
+      return;
+    }
+
+    const { jsPDF } =
+      window.jspdf;
+
+
+    // ---------------------------------------------------------
+    // 6. CREATE PDF
+    // ---------------------------------------------------------
+
+    const doc =
+      new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+    const pageWidth =
+      doc.internal.pageSize.getWidth();
+
+    const pageHeight =
+      doc.internal.pageSize.getHeight();
+
+
+    // ---------------------------------------------------------
+    // PAGE 1 — COVER
+    // ---------------------------------------------------------
+
+    doc.addImage(
+      coverData,
+      'JPEG',
+      0,
+      0,
+      pageWidth,
+      pageHeight
+    );
+
+
+    // ---------------------------------------------------------
+    // PAGE 2 — CYCLE JOURNAL INTRO
+    // ---------------------------------------------------------
+
+    doc.addPage();
+
+    doc.setTextColor(
+      0,
+      0,
+      0
+    );
+
+
+    // Title
+
+    doc.setFont(
+      'helvetica',
+      'bold'
+    );
+
+    doc.setFontSize(24);
+
+    const title =
+      template.intro_title || '';
+
+    const titleY = 85;
+
+    doc.text(
+      title,
+      pageWidth / 2,
+      titleY,
+      {
+        align: 'center'
+      }
+    );
+
+
+    // ---------------------------------------------------------
+    // INTRO TEXT
+    // ---------------------------------------------------------
+
+    doc.setFont(
+      'helvetica',
+      'normal'
+    );
+
+    doc.setFontSize(11);
+
+    const introText =
+      template.intro_text || '';
+
+    const introWidth =
+      pageWidth * 0.70;
+
+    const introLines =
+      doc.splitTextToSize(
+        introText,
+        introWidth
+      );
+
+    const introY =
+      titleY + 20;
+
+    doc.text(
+      introLines,
+      pageWidth / 2,
+      introY,
+      {
+        align: 'center',
+        lineHeightFactor: 1.6
+      }
+    );
+
+
+    // ---------------------------------------------------------
+    // QUICK TIP
+    // ---------------------------------------------------------
+
+    const quickTip =
+      template.quick_tip || '';
+
+    if (
+      quickTip.trim()
+    ) {
+
+      const quickTipY =
+        introY +
+        (introLines.length * 5.5) +
+        15;
+
+      doc.setFont(
+        'helvetica',
+        'italic'
+      );
+
+      doc.setFontSize(11);
+
+      doc.setTextColor(
+        0,
+        0,
+        0
+      );
+
+      const quickTipLines =
+        doc.splitTextToSize(
+          quickTip,
+          introWidth
+        );
+
+      doc.text(
+        quickTipLines,
+        pageWidth / 2,
+        quickTipY,
+        {
+          align: 'center',
+          lineHeightFactor: 1.6
+        }
+      );
+
+    }
+
+
+    // ---------------------------------------------------------
+    // FOOTER — PAGE 2
+    // ---------------------------------------------------------
+
+    if (
+      template.footer_text
+    ) {
+
+      doc.setFont(
+        'helvetica',
+        'normal'
+      );
+
+      doc.setFontSize(8);
+
+      doc.setTextColor(
+        0,
+        0,
+        0
+      );
+
+      doc.text(
+        template.footer_text,
+        pageWidth / 2,
+        pageHeight - 12,
+        {
+          align: 'center'
+        }
+      );
+
+    }
+
+
+    // ---------------------------------------------------------
+    // PAGE 3+ — CYCLE JOURNAL ENTRIES
+    // ---------------------------------------------------------
+
+    const marginLeft = 20;
+    const marginRight = 20;
+    const topMargin = 25;
+    const bottomMargin = 22;
+
+    const contentWidth =
+      pageWidth -
+      marginLeft -
+      marginRight;
+
+
+    // ---------------------------------------------------------
+    // FOOTER HELPER
+    // ---------------------------------------------------------
+
+    function addFooter() {
+
+      if (
+        !template.footer_text
+      ) return;
+
+      doc.setFont(
+        'helvetica',
+        'normal'
+      );
+
+      doc.setFontSize(8);
+
+      doc.setTextColor(
+        0,
+        0,
+        0
+      );
+
+      doc.text(
+        template.footer_text,
+        pageWidth / 2,
+        pageHeight - 12,
+        {
+          align: 'center'
+        }
+      );
+
+    }
+
+
+    // ---------------------------------------------------------
+    // NEW JOURNAL PAGE HELPER
+    // ---------------------------------------------------------
+
+    function startJournalPage() {
+
+      doc.addPage();
+
+      y = topMargin;
+
+      addFooter();
+
+      // Restore journal font after footer
+
+      doc.setFont(
+        'helvetica',
+        'normal'
+      );
+
+      doc.setFontSize(11);
+
+      doc.setTextColor(
+        0,
+        0,
+        0
+      );
+
+    }
+
+
+    // ---------------------------------------------------------
+    // CREATE FIRST JOURNAL PAGE — PAGE 3
+    // ---------------------------------------------------------
+
+    let y =
+      topMargin;
+
+    doc.addPage();
+
+    y =
+      topMargin;
+
+    addFooter();
+
+
+    // ---------------------------------------------------------
+    // LOOP THROUGH ALL CYCLE JOURNAL ENTRIES
+    // ---------------------------------------------------------
+
+    const sortedEntries =
+      Object.entries(entries)
+        .sort(
+          ([dateA], [dateB]) =>
+            dateA.localeCompare(dateB)
+        );
+
+
+    for (
+      const [date, reflection]
+      of sortedEntries
+    ) {
+
+
+      // -------------------------------------------------------
+      // SKIP ENTRIES OLDER THAN 365 DAYS
+      // -------------------------------------------------------
+
+      const entryDate =
+        new Date(date);
+
+      const diffDays =
+        Math.floor(
+          (today - entryDate) /
+          86400000
+        );
+
+      if (
+        diffDays > 365
+      ) {
+
+        continue;
+
+      }
+
+
+      // -------------------------------------------------------
+      // SKIP EMPTY ENTRIES
+      // -------------------------------------------------------
+
+      if (
+        !reflection ||
+        !reflection.trim()
+      ) {
+
+        continue;
+
+      }
+
+
+      // -------------------------------------------------------
+      // CHECK SPACE FOR DATE
+      // -------------------------------------------------------
+
+      if (
+        y >
+        pageHeight -
+        bottomMargin -
+        35
+      ) {
+
+        startJournalPage();
+
+      }
+
+
+      // -------------------------------------------------------
+      // DATE — BOLD
+      // -------------------------------------------------------
+
+      doc.setFont(
+        'helvetica',
+        'bold'
+      );
+
+      doc.setFontSize(11);
+
+      doc.setTextColor(
+        0,
+        0,
+        0
+      );
+
+      doc.text(
+        date,
+        marginLeft,
+        y
+      );
+
+      y += 7;
+
+
+      // -------------------------------------------------------
+      // CYCLE INFORMATION
+      // -------------------------------------------------------
+
+      const dayNum =
+        getCycleDay(date) || '-';
+
+      const phaseName =
+        getPhase(dayNum) || '-';
+
+      const phaseDisplay =
+        phaseName
+          .replace(
+            '-',
+            ' '
+          )
+          .replace(
+            /\b\w/g,
+            l => l.toUpperCase()
+          );
+
+
+      doc.setFont(
+        'helvetica',
+        'italic'
+      );
+
+      doc.setFontSize(10);
+
+      const cycleInfo =
+        `Phase: ${phaseDisplay} · Cycle Day: ${dayNum}`;
+
+
+      doc.text(
+        cycleInfo,
+        marginLeft,
+        y
+      );
+
+      y += 7;
+
+
+      // -------------------------------------------------------
+      // REFLECTION
+      // -------------------------------------------------------
+
+      doc.setFont(
+        'helvetica',
+        'normal'
+      );
+
+      doc.setFontSize(11);
+
+      const reflectionLines =
+        doc.splitTextToSize(
+          reflection,
+          contentWidth
+        );
+
+      const lineHeight =
+        5.5;
+
+
+      for (
+        const line
+        of reflectionLines
+      ) {
+
+        if (
+          y >
+          pageHeight -
+          bottomMargin
+        ) {
+
+          startJournalPage();
+
+          doc.setFont(
+            'helvetica',
+            'normal'
+          );
+
+          doc.setFontSize(11);
+
+          doc.setTextColor(
+            0,
+            0,
+            0
+          );
+
         }
 
-        
-      const dayNum = getCycleDay(dateKey) || '-'; 
-      const phaseName = getPhase(dayNum) || '-'; 
-      const text = entries[dateKey]; 
+        doc.text(
+          line,
+          marginLeft,
+          y
+        );
 
-      lines.push(`${dateKey} | Phase: ${phaseName} | Cycle Day: ${dayNum}\n${text}\n`);
-       }); 
+        y += lineHeight;
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+      }
 
-    const blob = new Blob([lines.join('\n')], {type: "text/plain"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'cycle_journal.txt';
-      
-/* ANALYTICS */
-track("download", {
-  content: CONTENT_NAME,
-  total_entries: Object.keys(entries).length
-});
 
-      
-    a.click();
-    URL.revokeObjectURL(url);
-};
+      // -------------------------------------------------------
+      // SPACE BETWEEN ENTRIES
+      // -------------------------------------------------------
+
+      y += 10;
+
+    }
+
+
+    // ---------------------------------------------------------
+    // FOOTER — CURRENT PAGE
+    // ---------------------------------------------------------
+
+    addFooter();
+
+
+    // ---------------------------------------------------------
+    // ANALYTICS — DOWNLOAD
+    // ---------------------------------------------------------
+
+    const totalEntries =
+      Object.entries(entries)
+        .filter(
+          ([date, reflection]) => {
+
+            const entryDate =
+              new Date(date);
+
+            const diffDays =
+              Math.floor(
+                (today - entryDate) /
+                86400000
+              );
+
+            return (
+              diffDays <= 365 &&
+              reflection &&
+              reflection.trim()
+            );
+
+          }
+        )
+        .length;
+
+
+    track(
+      "download",
+      {
+        content: CONTENT_NAME,
+        total_entries: totalEntries,
+        cover_number: selectedCover.order_by
+      }
+    );
+
+
+    // ---------------------------------------------------------
+    // SAVE PDF
+    // ---------------------------------------------------------
+
+    const downloadDate =
+      new Date();
+
+    const year =
+      downloadDate.getFullYear();
+
+    const month =
+      String(
+        downloadDate.getMonth() + 1
+      ).padStart(
+        2,
+        '0'
+      );
+
+    const day =
+      String(
+        downloadDate.getDate()
+      ).padStart(
+        2,
+        '0'
+      );
+
+
+    const fileName =
+      `cycle_journal_exhale_the_light_${year}_${month}_${day}.pdf`;
+
+
+    doc.save(
+      fileName
+    );
+
+
+    // ---------------------------------------------------------
+    // MOVE TO NEXT COVER
+    // ---------------------------------------------------------
+
+    localStorage.setItem(
+      COVER_ROTATION_KEY,
+      nextCoverIndex.toString()
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      'Cycle Journal PDF download error:',
+      error
+    );
+
+  }
+
+}
 
   
 /* MONTH NAV */
