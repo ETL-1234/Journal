@@ -515,6 +515,7 @@ function renderEntries(){
 }
 
   renderEntries();
+  journalContent.scrollTop = journalContent.scrollHeight;
   
 textarea.addEventListener("input",()=>{
 
@@ -567,8 +568,6 @@ textarea.addEventListener("input",()=>{
     );
 
     renderEntries();
-
-    journalContent.scrollTop = journalContent.scrollHeight;
 
     return;
   }
