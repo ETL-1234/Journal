@@ -504,15 +504,25 @@ document.getElementById("activePrompt");
 const journalContent =
 document.querySelector(".journalContent");
 
-  function positionWritingArea(){
+function positionWritingArea(){
 
+  /* Keep fresh-day behaviour exactly as it is */
+  if (!entries[today].length) {
+    journalContent.scrollTop = 0;
+    return;
+  }
+
+  /* Position the writing area around the middle of the panel */
   const targetPosition =
-    journalContent.clientHeight * 0.10;
+    journalContent.clientHeight * 0.50;
+
+  const textareaPosition =
+    textarea.offsetTop;
 
   const scrollPosition =
-    journalContent.scrollHeight -
-    textarea.offsetHeight -
-    targetPosition;
+    textareaPosition -
+    targetPosition +
+    (textarea.offsetHeight / 2);
 
   journalContent.scrollTop =
     Math.max(0, scrollPosition);
