@@ -505,6 +505,21 @@ document.getElementById("activePrompt");
 
 const journalContent =
 document.querySelector(".journalContent");
+
+  function positionWritingArea(){
+
+  const targetPosition =
+    journalContent.clientHeight * 0.55;
+
+  const scrollPosition =
+    journalContent.scrollHeight -
+    textarea.offsetHeight -
+    targetPosition;
+
+  journalContent.scrollTop =
+    Math.max(0, scrollPosition);
+
+}
   
 function renderEntries(){
 
