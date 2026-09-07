@@ -427,8 +427,13 @@ textarea.value = "";
 
 textarea.style.height = "auto";
 
+/* Hide the writing-space prompt until the user starts writing */
+activePrompt.style.display = "none";
+activePrompt.textContent = "";
+
 }
-  await loadPrompt();
+
+await loadPrompt();
 
   const promptText =
     document.getElementById("prompt").textContent;
