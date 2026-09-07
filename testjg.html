@@ -189,13 +189,21 @@ color:#999;
 white-space:pre-wrap;
 }
 
+  .journalHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+}
+
+
 /* DOWNLOAD */
 
 .download{
   display:flex;
-  justify-content:flex-end;
+  align-items:center;
+  justify-content:center;
   cursor:pointer;
-  margin-top:8px;
 }
 
 .download svg{
@@ -249,7 +257,19 @@ Refresh Prompt
 
 <div class="journalPanel">
 
-<div id="currentDate" class="journalDate"></div>
+<div class="journalHeader">
+
+  <div id="currentDate" class="journalDate"></div>
+
+  <div class="download" onclick="downloadJournal()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3v12"/>
+      <path d="M7 10l5 5 5-5"/>
+      <path d="M5 21h14"/>
+    </svg>
+  </div>
+
+</div>
 
 
 <div class="journalContent">
@@ -267,14 +287,6 @@ Refresh Prompt
   placeholder="Daily gratitude reflection..."
   ></textarea>
 
-</div>
-
-<div class="download" onclick="downloadJournal()">
-  <svg viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M12 3v12"/>
-    <path d="M7 10l5 5 5-5"/>
-    <path d="M5 21h14"/>
-  </svg>
 </div>
 
 </div>
