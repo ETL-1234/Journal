@@ -432,10 +432,8 @@ JSON.stringify(entries)
 );
 
 renderEntries();
-
-journalContent.scrollTop =
-journalContent.scrollHeight - journalContent.clientHeight - 40;
-
+positionWritingArea();
+    
 textarea.value = "";
 
 textarea.style.height = "auto";
@@ -542,9 +540,8 @@ function renderEntries(){
 
 }
 
-  renderEntries();
-  journalContent.scrollTop = 
-  journalContent.scrollHeight - journalContent.clientHeight - 40;
+ renderEntries();
+ positionWritingArea();
    
 textarea.addEventListener("input",()=>{
 
